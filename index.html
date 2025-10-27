@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogos Educacionais - Ecossistema Marinho de Arraial do Cabo</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🌊</text></svg>">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 50%, #7db9e8 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Bolhas animadas de fundo */
+        .bubble {
+            position: fixed;
+            bottom: -100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: rise 20s infinite ease-in;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes rise {
+            to {
+                bottom: 110vh;
+                transform: translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        .bubble:nth-child(1) { width: 60px; height: 60px; left: 10%; animation-delay: 0s; }
+        .bubble:nth-child(2) { width: 40px; height: 40px; left: 25%; animation-delay: 3s; }
+        .bubble:nth-child(3) { width: 80px; height: 80px; left: 50%; animation-delay: 6s; }
+        .bubble:nth-child(4) { width: 50px; height: 50px; left: 70%; animation-delay: 2s; }
+        .bubble:nth-child(5) { width: 70px; height: 70px; left: 85%; animation-delay: 5s; }
+        .bubble:nth-child(6) { width: 45px; height: 45px; left: 15%; animation-delay: 8s; }
+        .bubble:nth-child(7) { width: 65px; height: 65px; left: 90%; animation-delay: 1s; }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInDown 0.8s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+            margin-top: 10px;
+        }
+
+        .subtitle {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        main {
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .intro-text {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            text-align: center;
+            animation: slideUp 0.8s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .intro-text h2 {
+            color: #00838f;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        .intro-text p {
+            color: #555;
+            line-height: 1.6;
+            font-size: 1.05em;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .jogo-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid #00bcd4;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: cardAppear 0.6s ease backwards;
+        }
+
+        .jogo-card:nth-child(1) { animation-delay: 0.1s; }
+        .jogo-card:nth-child(2) { animation-delay: 0.2s; }
+        .jogo-card:nth-child(3) { animation-delay: 0.3s; }
+        .jogo-card:nth-child(4) { animation-delay: 0.4s; }
+        .jogo-card:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .jogo-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(0,188,212,0.4);
+            border-color: #00838f;
+        }
+
+        .jogo-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .jogo-card:hover::before {
+            left: 100%;
+        }
+
+        .card-icon {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            display: block;
+            text-align: center;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .jogo-card h3 {
+            color: #00838f;
+            margin-bottom: 12px;
+            font-size: 1.4em;
+            text-align: center;
+        }
+
+        .jogo-card p {
+            color: #555;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            text-align: center;
+            font-size: 0.95em;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #00838f, #00bcd4);
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,131,143,0.3);
+            display: inline-block;
+            font-size: 0.95em;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,188,212,0.5);
+            background: linear-gradient(135deg, #00bcd4, #00838f);
+        }
+
+        .btn.disabled {
+            background: linear-gradient(135deg, #999, #bbb);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status-badge.disponivel {
+            background: #4caf50;
+            color: white;
+        }
+
+        .status-badge.em-breve {
+            background: #ff9800;
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px 20px;
+            margin-top: 50px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        footer p {
+            margin: 8px 0;
+            font-size: 0.95em;
+        }
+
+        footer a {
+            color: #80deea;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: #b2ebf2;
+            text-decoration: underline;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            header p {
+                font-size: 1em;
+            }
+
+            .subtitle {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .intro-text {
+                padding: 20px;
+            }
+
+            .intro-text h2 {
+                font-size: 1.4em;
+            }
+
+            .intro-text p {
+                font-size: 0.95em;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .jogo-card {
+                padding: 20px;
+            }
+
+            .card-icon {
+                font-size: 3em;
+            }
+
+            .jogo-card h3 {
+                font-size: 1.2em;
+            }
+
+            .btn {
+                padding: 10px 24px;
+                font-size: 0.9em;
+            }
+
+            footer {
+                margin-top: 30px;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.5em;
+            }
+
+            .card-icon {
+                font-size: 2.5em;
+            }
+
+            .jogo-card h3 {
+                font-size: 1.1em;
+            }
+
+            .jogo-card p {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Bolhas animadas -->
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+
+<div class="container">
+    <header>
+        <h1>🌊 Jogos Educativos 🐠<br>Ecossistemas Marinhos</h1>
+        <p class="subtitle">📍 Arraial do Cabo - RJ</p>
+        <p>Aprenda sobre o oceano de forma divertida!</p>
+    </header>
+
+    <main>
+        <div class="intro-text">
+            <h2>🎮 Escolha um Jogo</h2>
+            <p>Explore os ecossistemas marinhos de Arraial do Cabo através de jogos interativos e educativos. Aprenda sobre biodiversidade, preservação ambiental e a importância dos oceanos!</p>
+        </div>
+
+        <div class="games-grid">
+            <div class="jogo-card">
+                <span class="card-icon">🐠</span>
+                <h3>
+                    Arrastar e Soltar
+                    <span class="status-badge disponivel">✓ Disponível</span>
+                </h3>
+                <p>Reconstrua o equilíbrio do oceano posicionando cada espécie e descartando o lixo corretamente. Monte o ecossistema perfeito!</p>
+                <div class="card-footer">
+                    <a href="ArrastarESoltar.html" class="btn">🎮 Jogar Agora</a>
+                </div>
+            </div>
+
+            <div class="jogo-card">
+                <span class="card-icon">❓</span>
+                <h3>
+                    Quiz Interativo
+                    <span class="status-badge em-breve">⏳ Em Breve</span>
+                </h3>
+                <p>Responda perguntas rápidas sobre o impacto ambiental em situações do cotidiano marinho. Teste seus conhecimentos!</p>
+                <div class="card-footer">
+                    <a href="#" class="btn disabled">🔒 Em Desenvolvimento</a>
+                </div>
+            </div>
+
+            <div class="jogo-card">
+                <span class="card-icon">🧩</span>
+                <h3>
+                    Quebra-cabeça do Oceano
+                    <span class="status-badge em-breve">⏳ Em Breve</span>
+                </h3>
+                <p>Remonte a paisagem subaquática encaixando as peças no lugar correto. Veja a diferença entre um oceano saudável e poluído!</p>
+                <div class="card-footer">
+                    <a href="#" class="btn disabled">🔒 Em Desenvolvimento</a>
+                </div>
+            </div>
+
+            <div class="jogo-card">
+                <span class="card-icon">🦈</span>
+                <h3>
+                    Cadeia Alimentar
+                    <span class="status-badge em-breve">⏳ Em Breve</span>
+                </h3>
+                <p>Organize os organismos conforme sua posição na cadeia alimentar marinha. Entenda como tudo está conectado!</p>
+                <div class="card-footer">
+                    <a href="#" class="btn disabled">🔒 Em Desenvolvimento</a>
+                </div>
+            </div>
+
+            <div class="jogo-card">
+                <span class="card-icon">✅</span>
+                <h3>
+                    Escolha Certa ou Errada
+                    <span class="status-badge em-breve">⏳ Em Breve</span>
+                </h3>
+                <p>Avalie hábitos e ações, escolhendo se ajudam ou prejudicam o meio ambiente. Aprenda a fazer a diferença!</p>
+                <div class="card-footer">
+                    <a href="#" class="btn disabled">🔒 Em Desenvolvimento</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p><strong>🌊 Projeto Educacional - Ecossistemas Marinhos</strong></p>
+        <p>Desenvolvido para conscientizar sobre a preservação dos oceanos</p>
+        <p>Arraial do Cabo - A Capital do Mergulho do Brasil 🐠</p>
+        <p style="margin-top: 15px; font-size: 0.9em; opacity: 0.8;">
+            💡 <em>Juntos pela preservação dos nossos oceanos!</em>
+        </p>
+    </footer>
+</div>
+</body>
+</html>
