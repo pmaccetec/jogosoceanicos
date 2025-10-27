@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Monte o Ecossistema Marinho - Arraial do Cabo</title>
+
+    <!-- Favicon inline SVG -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🐠</text></svg>">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 50%, #7db9e8 100%);
+            padding: 10px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Bolhas de fundo animadas */
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: rise 15s infinite ease-in;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes rise {
+            to {
+                bottom: 100vh;
+                transform: translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 3px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        header p {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 12px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            flex-wrap: wrap;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .score-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.95em;
+            font-weight: bold;
+            color: #00838f;
+        }
+
+        .score-box span {
+            background: linear-gradient(135deg, #00838f, #00bcd4);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            min-width: 35px;
+            text-align: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00838f, #00bcd4);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0,188,212,0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #ff6f00, #ff9100);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(255,111,0,0.4);
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            flex: 1;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .items-panel, .drop-zones-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .items-panel h2, .drop-zones-panel h2 {
+            color: #00838f;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .items-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 12px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 5px;
+        }
+
+        .item {
+            background: white;
+            border: 3px solid #00bcd4;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            cursor: move;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .item:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 6px 15px rgba(0,188,212,0.4);
+        }
+
+        .item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .item.touch-dragging {
+            position: fixed;
+            z-index: 9999;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .item-icon {
+            font-size: 3em;
+            margin-bottom: 5px;
+            display: block;
+            line-height: 1;
+            /* Garantir que emojis apareçam coloridos em todos navegadores */
+            font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            filter: contrast(1.1) saturate(1.2);
+        }
+
+        .item-name {
+            font-size: 0.8em;
+            font-weight: bold;
+            color: #00838f;
+        }
+
+        .drop-zones-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            /* REMOVIDO: overflow-y: auto; */
+            /* Agora as zonas ocupam exatamente o espaço necessário */
+        }
+
+        .drop-zone {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border: 3px dashed #00838f;
+            border-radius: 12px;
+            padding: 12px;
+            min-height: 90px;
+            transition: all 0.3s ease;
+            position: relative;
+            /* Zonas crescem proporcionalmente */
+            flex: 1;
+        }
+
+        .drop-zone h3 {
+            color: #00838f;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+
+        .drop-zone p {
+            font-size: 0.75em;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .drop-zone.drag-over {
+            background: linear-gradient(135deg, #80deea 0%, #4dd0e1 100%);
+            border-color: #00acc1;
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(0,188,212,0.5);
+        }
+
+        .drop-zone.correct {
+            animation: correctPulse 0.6s ease;
+            border-color: #4caf50;
+            background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+        }
+
+        .drop-zone.incorrect {
+            animation: shake 0.5s ease;
+            border-color: #f44336;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .dropped-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .feedback-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 25px 35px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            max-width: 85%;
+        }
+
+        .feedback-message.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .feedback-message.success {
+            border: 4px solid #4caf50;
+        }
+
+        .feedback-message.error {
+            border: 4px solid #f44336;
+        }
+
+        .feedback-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .feedback-text {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .feedback-detail {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        .victory-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .victory-modal.show {
+            display: flex;
+        }
+
+        .victory-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 90%;
+            margin: 20px;
+            animation: bounceIn 0.6s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .victory-content h2 {
+            color: #00838f;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .victory-stars {
+            font-size: 2.5em;
+            margin: 12px 0;
+        }
+
+        .victory-content p {
+            font-size: 1.05em;
+            color: #555;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        .fun-fact {
+            background: #e0f7fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #00bcd4;
+        }
+
+        .fun-fact strong {
+            color: #00838f;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* Layout Mobile Otimizado - SEM SCROLL */
+        @media (max-width: 768px) {
+            html, body {
+                height: 100vh;
+                height: -webkit-fill-available;
+                overflow: hidden;
+                position: fixed;
+                width: 100%;
+            }
+
+            body {
+                padding: 5px;
+            }
+
+            header h1 {
+                font-size: 1.3em;
+                margin-bottom: 2px;
+            }
+
+            header p {
+                font-size: 0.8em;
+            }
+
+            header {
+                margin-bottom: 5px;
+            }
+
+            .game-info {
+                padding: 6px 8px;
+                margin-bottom: 5px;
+                gap: 5px;
+            }
+
+            .score-box {
+                font-size: 0.8em;
+                gap: 4px;
+            }
+
+            .score-box span {
+                padding: 4px 8px;
+                font-size: 0.85em;
+            }
+
+            .btn {
+                padding: 6px 12px;
+                font-size: 0.75em;
+            }
+
+            .game-area {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                grid-template-rows: auto 1fr;
+            }
+
+            .items-panel {
+                order: 1;
+                padding: 10px;
+                max-height: 35vh;
+            }
+
+            .items-panel h2 {
+                font-size: 1em;
+                margin-bottom: 8px;
+            }
+
+            .drop-zones-panel {
+                order: 2;
+                padding: 10px;
+                flex: 1;
+                /* Importante: garante que ocupe o espaço restante */
+                min-height: 0;
+            }
+
+            .drop-zones-panel h2 {
+                font-size: 1em;
+                margin-bottom: 8px;
+            }
+
+            .items-container {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+
+            .item {
+                padding: 6px;
+            }
+
+            .item-icon {
+                font-size: 2.2em;
+                margin-bottom: 3px;
+            }
+
+            .item-name {
+                font-size: 0.7em;
+            }
+
+            .drop-zones-container {
+                gap: 6px;
+                /* Zonas preenchem todo o espaço disponível */
+                height: 100%;
+            }
+
+            .drop-zone {
+                padding: 8px;
+                min-height: 70px;
+                /* Cada zona ocupa 1/3 do espaço disponível */
+            }
+
+            .drop-zone h3 {
+                font-size: 0.85em;
+                margin-bottom: 3px;
+            }
+
+            .drop-zone p {
+                font-size: 0.7em;
+                margin-bottom: 3px;
+            }
+
+            .dropped-items {
+                gap: 4px;
+            }
+
+            .feedback-message {
+                padding: 18px 25px;
+            }
+
+            .feedback-icon {
+                font-size: 2.5em;
+            }
+
+            .feedback-text {
+                font-size: 1em;
+            }
+
+            .feedback-detail {
+                font-size: 0.85em;
+            }
+
+            .victory-content {
+                padding: 20px;
+            }
+
+            .victory-content h2 {
+                font-size: 1.6em;
+            }
+        }
+
+        /* Scrollbar customizado */
+        .items-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .items-container::-webkit-scrollbar-track {
+            background: rgba(0, 131, 143, 0.1);
+            border-radius: 10px;
+        }
+
+        .items-container::-webkit-scrollbar-thumb {
+            background: rgba(0, 131, 143, 0.5);
+            border-radius: 10px;
+        }
+
+        .items-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 131, 143, 0.8);
+        }
+    </style>
+</head>
+<body>
+<!-- Bolhas animadas de fundo -->
+<div class="bubble" style="width: 60px; height: 60px; left: 10%; animation-delay: 0s;"></div>
+<div class="bubble" style="width: 40px; height: 40px; left: 25%; animation-delay: 2s;"></div>
+<div class="bubble" style="width: 80px; height: 80px; left: 50%; animation-delay: 4s;"></div>
+<div class="bubble" style="width: 50px; height: 50px; left: 70%; animation-delay: 1s;"></div>
+<div class="bubble" style="width: 70px; height: 70px; left: 85%; animation-delay: 3s;"></div>
+
+<div class="container">
+    <header>
+        <h1>🌊 Monte o Ecossistema Marinho 🐠</h1>
+        <p>Arraial do Cabo - RJ</p>
+    </header>
+
+    <div class="game-info">
+        <div class="score-box">
+            <span>🎯</span>
+            <span id="score">0</span>
+        </div>
+        <div class="score-box">
+            <span>✅</span>
+            <span id="correct">0</span>
+        </div>
+        <div class="score-box">
+            <span>❌</span>
+            <span id="errors">0</span>
+        </div>
+        <button class="btn btn-secondary" onclick="resetGame()">🔄 Reiniciar</button>
+        <button class="btn btn-primary" onclick="location.href='index.html'">🏠 Menu</button>
+    </div>
+
+    <div class="game-area">
+        <div class="items-panel">
+            <h2>🧩 Elementos</h2>
+            <div class="items-container" id="items-container">
+                <!-- Items serão gerados aqui -->
+            </div>
+        </div>
+
+        <div class="drop-zones-panel">
+            <h2>🎯 Destinos</h2>
+            <div class="drop-zones-container">
+                <div class="drop-zone" data-type="ocean" id="zone-ocean">
+                    <h3>🌊 Oceano Saudável</h3>
+                    <p>Arraste os seres vivos</p>
+                    <div class="dropped-items"></div>
+                </div>
+
+                <div class="drop-zone" data-type="coral" id="zone-coral">
+                    <h3>🪸 Recife de Corais</h3>
+                    <p>Corais e algas</p>
+                    <div class="dropped-items"></div>
+                </div>
+
+                <div class="drop-zone" data-type="trash" id="zone-trash">
+                    <h3>🚮 Lixeira</h3>
+                    <p>Lixo e poluentes</p>
+                    <div class="dropped-items"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="feedback-message" id="feedback-message">
+    <div class="feedback-icon" id="feedback-icon"></div>
+    <div class="feedback-text" id="feedback-text"></div>
+    <div class="feedback-detail" id="feedback-detail"></div>
+</div>
+
+<div class="victory-modal" id="victory-modal">
+    <div class="victory-content">
+        <h2>🎉 Parabéns!</h2>
+        <div class="victory-stars">⭐⭐⭐</div>
+        <p><strong>Você completou o ecossistema!</strong></p>
+        <p>Pontuação final: <strong id="final-score">0</strong> pontos</p>
+
+        <div class="fun-fact">
+            <strong>🐠 Você Sabia?</strong>
+            <p>Arraial do Cabo é conhecido como a "Capital do Mergulho" do Brasil! Suas águas cristalinas abrigam mais de 200 espécies de peixes e uma rica biodiversidade marinha.</p>
+        </div>
+
+        <button class="btn btn-primary" onclick="resetGame()" style="margin-right: 10px;">🔄 Jogar Novamente</button>
+        <button class="btn btn-secondary" onclick="location.href='index.html'">🏠 Voltar ao Menu</button>
+    </div>
+</div>
+
+<script>
+    // Dados dos elementos
+    const items = [
+        {
+            id: 'fish1',
+            name: 'Peixe-Palhaço',
+            icon: '🐠',
+            type: 'ocean',
+            info: 'Vive em simbiose com anêmonas'
+        },
+        {
+            id: 'fish2',
+            name: 'Peixe-Cirurgião',
+            icon: '🐟',
+            type: 'ocean',
+            info: 'Ajuda a controlar algas nos corais'
+        },
+        {
+            id: 'turtle',
+            name: 'Tartaruga',
+            icon: '🐢',
+            type: 'ocean',
+            info: 'Pode viver mais de 100 anos'
+        },
+        {
+            id: 'octopus',
+            name: 'Polvo',
+            icon: '🐙',
+            type: 'ocean',
+            info: 'Animal muito inteligente e curioso'
+        },
+        {
+            id: 'dolphin',
+            name: 'Golfinho',
+            icon: '🐬',
+            type: 'ocean',
+            info: 'Mamífero que se comunica por sons'
+        },
+        {
+            id: 'coral',
+            name: 'Coral',
+            icon: '🪸',
+            type: 'coral',
+            info: 'Forma recifes que abrigam vida marinha'
+        },
+        {
+            id: 'seaweed',
+            name: 'Alga Marinha',
+            icon: '🌿',
+            type: 'coral',
+            info: 'Produz oxigênio e serve de alimento'
+        },
+        {
+            id: 'trash1',
+            name: 'Garrafa Plástica',
+            icon: '🥤',
+            type: 'trash',
+            info: 'Plástico leva 450 anos para decompor'
+        },
+        {
+            id: 'trash2',
+            name: 'Lixo',
+            icon: '🗑️',
+            type: 'trash',
+            info: 'Pode causar morte de animais marinhos'
+        },
+        {
+            id: 'oil',
+            name: 'Petróleo',
+            icon: '🛢️',
+            type: 'trash',
+            info: 'Derramamento causa desastres ambientais'
+        }
+    ];
+
+    let score = 0;
+    let correct = 0;
+    let errors = 0;
+    let itemsPlaced = 0;
+    let draggedElement = null;
+    let touchDraggedElement = null;
+    let touchClone = null;
+    let touchStartY = 0;
+    let touchStartX = 0;
+    let isDragging = false;
+
+    // Desktop drag functions
+    function dragStart(e) {
+        draggedElement = e.target.closest('.item');
+        if (draggedElement) {
+            draggedElement.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+    }
+
+    function dragEnd(e) {
+        if (draggedElement) {
+            draggedElement.classList.remove('dragging');
+        }
+    }
+
+    function dragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        e.currentTarget.classList.add('drag-over');
+    }
+
+    function dragLeave(e) {
+        e.currentTarget.classList.remove('drag-over');
+    }
+
+    function drop(e) {
+        e.preventDefault();
+        const zone = e.currentTarget;
+        zone.classList.remove('drag-over');
+
+        if (!draggedElement) return;
+
+        processDroppedItem(draggedElement, zone);
+    }
+
+    // Mobile touch functions
+    function touchStart(e) {
+        const item = e.target.closest('.item');
+        if (!item || item.draggable === false) return;
+
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchDraggedElement = item;
+        isDragging = false;
+    }
+
+    function touchMove(e) {
+        if (!touchDraggedElement) return;
+
+        const touch = e.touches[0];
+        const deltaX = Math.abs(touch.clientX - touchStartX);
+        const deltaY = Math.abs(touch.clientY - touchStartY);
+
+        // Se movimento horizontal maior que vertical = arrastar
+        // Se movimento vertical maior = permitir scroll
+        if (deltaX > 10 || deltaY > 10) {
+            if (deltaX > deltaY || isDragging) {
+                // Arrasto horizontal - iniciar drag
+                e.preventDefault();
+                isDragging = true;
+
+                if (!touchClone) {
+                    touchDraggedElement.classList.add('dragging');
+                    touchClone = touchDraggedElement.cloneNode(true);
+                    touchClone.classList.add('touch-dragging');
+                    touchClone.style.width = touchDraggedElement.offsetWidth + 'px';
+                    document.body.appendChild(touchClone);
+                }
+
+                // Posicionar o clone
+                touchClone.style.left = (touch.clientX - touchClone.offsetWidth / 2) + 'px';
+                touchClone.style.top = (touch.clientY - touchClone.offsetHeight / 2) + 'px';
+
+                // Verificar sobre qual zona está
+                const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                const dropZone = elementBelow?.closest('.drop-zone');
+
+                // Remover highlight de todas as zonas
+                document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+
+                // Adicionar highlight na zona atual
+                if (dropZone) {
+                    dropZone.classList.add('drag-over');
+                }
+            }
+            // Se deltaY > deltaX, não previne default = permite scroll
+        }
+    }
+
+    function touchEnd(e) {
+        if (!touchDraggedElement) return;
+
+        if (isDragging && touchClone) {
+            e.preventDefault();
+
+            const touch = e.changedTouches[0];
+            const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+            const dropZone = elementBelow?.closest('.drop-zone');
+
+            // Remover clone
+            touchClone.remove();
+            touchClone = null;
+
+            touchDraggedElement.classList.remove('dragging');
+
+            // Remover highlight de todas as zonas
+            document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+
+            if (dropZone) {
+                processDroppedItem(touchDraggedElement, dropZone);
+            }
+        }
+
+        touchDraggedElement = null;
+        isDragging = false;
+    }
+
+    // Processar item solto (usado tanto para desktop quanto mobile)
+    function processDroppedItem(item, zone) {
+        const itemType = item.dataset.type;
+        const zoneType = zone.dataset.type;
+        const itemInfo = item.dataset.info;
+
+        if (itemType === zoneType) {
+            // Correto!
+            zone.classList.add('correct');
+            setTimeout(() => zone.classList.remove('correct'), 600);
+
+            const droppedItems = zone.querySelector('.dropped-items');
+            droppedItems.appendChild(item);
+            item.draggable = false;
+            item.style.cursor = 'default';
+
+            // Remover eventos touch do item já colocado
+            const newItem = item.cloneNode(true);
+            item.replaceWith(newItem);
+
+            score += 10;
+            correct++;
+            itemsPlaced++;
+
+            showFeedback(true, 'Muito bem!', itemInfo);
+            updateScore();
+
+            if (itemsPlaced === items.length) {
+                setTimeout(() => showVictory(), 1000);
+            }
+        } else {
+            // Incorreto
+            zone.classList.add('incorrect');
+            setTimeout(() => zone.classList.remove('incorrect'), 500);
+
+            score = Math.max(0, score - 5);
+            errors++;
+
+            let message = '';
+            if (zoneType === 'ocean' && itemType !== 'ocean') {
+                message = 'Este item não pertence ao oceano aberto!';
+            } else if (zoneType === 'coral' && itemType !== 'coral') {
+                message = 'Este item não pertence ao recife de corais!';
+            } else if (zoneType === 'trash' && itemType !== 'trash') {
+                message = 'Este não é lixo! Ele pertence ao ecossistema!';
+            }
+
+            showFeedback(false, 'Ops! Tente novamente', message);
+            updateScore();
+        }
+
+        draggedElement = null;
+    }
+
+    function showFeedback(isSuccess, text, detail) {
+        const feedback = document.getElementById('feedback-message');
+        const icon = document.getElementById('feedback-icon');
+        const textEl = document.getElementById('feedback-text');
+        const detailEl = document.getElementById('feedback-detail');
+
+        feedback.className = 'feedback-message show ' + (isSuccess ? 'success' : 'error');
+        icon.textContent = isSuccess ? '✅' : '❌';
+        textEl.textContent = text;
+        detailEl.textContent = detail;
+
+        setTimeout(() => {
+            feedback.classList.remove('show');
+        }, 3000);
+    }
+
+    function updateScore() {
+        document.getElementById('score').textContent = score;
+        document.getElementById('correct').textContent = correct;
+        document.getElementById('errors').textContent = errors;
+    }
+
+    function showVictory() {
+        document.getElementById('final-score').textContent = score;
+        document.getElementById('victory-modal').classList.add('show');
+    }
+
+    function resetGame() {
+        score = 0;
+        correct = 0;
+        errors = 0;
+        itemsPlaced = 0;
+        updateScore();
+
+        document.querySelectorAll('.dropped-items').forEach(container => {
+            container.innerHTML = '';
+        });
+
+        document.getElementById('victory-modal').classList.remove('show');
+
+        // Limpar clone se existir
+        if (touchClone) {
+            touchClone.remove();
+            touchClone = null;
+        }
+
+        touchDraggedElement = null;
+        draggedElement = null;
+        isDragging = false;
+
+        initGame();
+    }
+
+    // Inicializar jogo
+    function initGame() {
+        const container = document.getElementById('items-container');
+        container.innerHTML = '';
+
+        items.forEach(item => {
+            const itemEl = document.createElement('div');
+            itemEl.className = 'item';
+            itemEl.draggable = true;
+            itemEl.dataset.id = item.id;
+            itemEl.dataset.type = item.type;
+            itemEl.dataset.info = item.info;
+            itemEl.innerHTML = `
+                    <span class="item-icon">${item.icon}</span>
+                    <div class="item-name">${item.name}</div>
+                `;
+
+            // Desktop drag events
+            itemEl.addEventListener('dragstart', dragStart);
+            itemEl.addEventListener('dragend', dragEnd);
+
+            // Mobile touch events
+            itemEl.addEventListener('touchstart', touchStart, { passive: true });
+            itemEl.addEventListener('touchmove', touchMove, { passive: false });
+            itemEl.addEventListener('touchend', touchEnd, { passive: false });
+
+            container.appendChild(itemEl);
+        });
+
+        // Setup drop zones
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.addEventListener('dragover', dragOver);
+            zone.addEventListener('drop', drop);
+            zone.addEventListener('dragleave', dragLeave);
+        });
+    }
+
+    // Iniciar o jogo quando a página carregar
+    window.addEventListener('DOMContentLoaded', initGame);
+</script>
+</body>
+</html>
