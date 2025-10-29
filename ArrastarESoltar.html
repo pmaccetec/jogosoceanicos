@@ -182,11 +182,17 @@
 
         .items-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            justify-content: start; /* evita centralizar quando são poucos */
             gap: 12px;
             overflow-y: auto;
             overflow-x: hidden;
             padding-right: 5px;
+        }
+
+        .items-container .item {
+            width: 100px;
+            max-width: 100%;
         }
 
         .item {
@@ -200,6 +206,10 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             user-select: none;
             -webkit-user-select: none;
+        }
+
+        .items-container, .dropped-items {
+            overflow: visible; /* permite que os elementos animados ultrapassem o container sem barras de rolagem */
         }
 
         .item:hover {
@@ -239,8 +249,11 @@
 
         .drop-zones-container {
             display: flex;
+            height: 100%;
+            max-height: 700px; /* suficiente para a tela desktop */
             flex-direction: column;
             gap: 10px;
+            overflow-y: auto;
             /* REMOVIDO: overflow-y: auto; */
             /* Agora as zonas ocupam exatamente o espaço necessário */
         }
@@ -254,6 +267,8 @@
             transition: all 0.3s ease;
             position: relative;
             /* Zonas crescem proporcionalmente */
+            max-height: 100%; /* ou ajuste conforme necessário */
+            overflow-y: auto;
             flex: 1;
         }
 
@@ -298,7 +313,17 @@
             75% { transform: translateX(10px); }
         }
 
+        .dropped-items .item {
+            width: 100px;       /* largura fixa */
+            height: 110px;      /* altura fixa */
+            overflow: hidden;  /* esconde possível conteúdo extra */
+            flex-shrink: 0;    /* impede que encolham */
+            box-sizing: border-box;
+        }
+
         .dropped-items {
+            max-height: 100%;
+            overflow-y: auto;   /* scroll vertical só se exceder o limite */
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
@@ -506,6 +531,13 @@
             .items-container {
                 grid-template-columns: repeat(3, 1fr);
                 gap: 6px;
+            }
+
+            .items-container .item {
+                width: 90px;       /* largura fixa para itens na origem */
+                height: 90px;      /* altura fixa na origem */
+                box-sizing: border-box;
+                flex-shrink: 0;
             }
 
             .item {
