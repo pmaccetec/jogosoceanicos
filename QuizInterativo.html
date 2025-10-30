@@ -13,13 +13,42 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0a7ea4 0%, #1ba39c 50%, #16a085 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
         }
+
+        /* Bolhas animadas de fundo */
+        .bubble {
+            position: fixed;
+            bottom: -100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: rise 20s infinite ease-in;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes rise {
+            to {
+                bottom: 110vh;
+                transform: translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        .bubble:nth-child(1) { width: 60px; height: 60px; left: 10%; animation-delay: 0s; }
+        .bubble:nth-child(2) { width: 40px; height: 40px; left: 25%; animation-delay: 3s; }
+        .bubble:nth-child(3) { width: 80px; height: 80px; left: 50%; animation-delay: 6s; }
+        .bubble:nth-child(4) { width: 50px; height: 50px; left: 70%; animation-delay: 2s; }
+        .bubble:nth-child(5) { width: 70px; height: 70px; left: 85%; animation-delay: 5s; }
+        .bubble:nth-child(6) { width: 45px; height: 45px; left: 15%; animation-delay: 8s; }
+        .bubble:nth-child(7) { width: 65px; height: 65px; left: 90%; animation-delay: 1s; }
 
         .container {
             background: white;
@@ -29,6 +58,8 @@
             width: 100%;
             padding: 40px;
             animation: slideIn 0.5s ease-out;
+            position: relative;
+            z-index: 1;
         }
 
         @keyframes slideIn {
@@ -61,6 +92,28 @@
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            z-index: 10;
+        }
+
+        .back-button:hover {
+            background: #5a6268;
+            transform: scale(1.05);
         }
 
         .progress-bar {
@@ -142,13 +195,13 @@
         .option:hover {
             background: #e9ecef;
             transform: translateX(5px);
-            border-color: #667eea;
+            border-color: #0a7ea4;
         }
 
         .option.selected {
-            background: #667eea;
+            background: #0a7ea4;
             color: white;
-            border-color: #667eea;
+            border-color: #0a7ea4;
         }
 
         .option.correct {
@@ -207,7 +260,7 @@
         }
 
         .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0a7ea4 0%, #16a085 100%);
             color: white;
             border: none;
             padding: 15px 40px;
@@ -251,7 +304,7 @@
 
         .result-score {
             font-size: 3em;
-            color: #667eea;
+            color: #0a7ea4;
             font-weight: bold;
             margin-bottom: 20px;
         }
@@ -283,6 +336,7 @@
         @media (max-width: 600px) {
             .container {
                 padding: 20px;
+                padding-top: 60px;
             }
 
             .header h1 {
@@ -296,287 +350,328 @@
             .option {
                 padding: 15px;
             }
+
+            .back-button {
+                position: static;
+                margin-bottom: 20px;
+                display: inline-block;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="emoji">🌊</div>
-            <h1>Quiz do Oceano</h1>
-            <p style="color: #6c757d;">Arraial do Cabo</p>
-        </div>
+<!-- Bolhas animadas -->
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
 
-        <!-- Tela Inicial -->
-        <div id="startScreen" class="start-screen">
-            <h2>Bem-vindo ao Quiz Interativo!</h2>
-            <p>
-                Teste seus conhecimentos sobre o impacto humano no oceano de Arraial do Cabo. 
-                Você verá situações reais e precisará escolher a melhor ação para ajudar o meio ambiente marinho.
-            </p>
-            <p>
-                <strong>São 6 perguntas</strong> sobre poluição, preservação e cuidados com o oceano.
-            </p>
-            <button class="btn" onclick="startQuiz()">🎮 Começar Quiz</button>
-        </div>
+<div class="container">
+    <!-- Botão Voltar sempre visível -->
+    <button onclick="confirmExit()" class="back-button">← Voltar ao Início</button>
 
-        <!-- Tela do Quiz -->
-        <div id="quizScreen" style="display: none;">
-            <div class="progress-bar">
-                <div id="progressFill" class="progress-fill"></div>
-            </div>
-
-            <div class="score-board">
-                <div class="score-item">
-                    <div class="label">Questão</div>
-                    <div class="value" id="currentQuestion">1/6</div>
-                </div>
-                <div class="score-item">
-                    <div class="label">Pontos</div>
-                    <div class="value" id="score">0</div>
-                </div>
-                <div class="score-item">
-                    <div class="label">Acertos</div>
-                    <div class="value" id="correct">0</div>
-                </div>
-            </div>
-
-            <div class="question-card">
-                <div id="situationImage" class="situation-image">🗑️</div>
-                <div id="questionText" class="question-text"></div>
-                <div id="options" class="options"></div>
-            </div>
-
-            <div id="feedback" class="feedback"></div>
-
-            <button id="nextBtn" class="btn" onclick="nextQuestion()" style="display: none;">
-                Próxima Pergunta →
-            </button>
-        </div>
-
-        <!-- Tela de Resultado -->
-        <div id="resultScreen" class="result-screen">
-            <div id="resultEmoji" class="result-emoji">🏆</div>
-            <div class="result-title">Quiz Finalizado!</div>
-            <div class="result-score" id="finalScore">0/6</div>
-            <div class="result-message" id="resultMessage"></div>
-            <button class="btn" onclick="restartQuiz()">🔄 Jogar Novamente</button>
-        </div>
+    <div class="header">
+        <div class="emoji">🌊</div>
+        <h1>Quiz do Oceano</h1>
+        <p style="color: #6c757d;">Arraial do Cabo</p>
     </div>
 
-    <script>
-        // Banco de perguntas
-        const questions = [
-            {
-                emoji: "🗑️",
-                question: "Você está na praia de Arraial do Cabo e vê muito lixo na areia. O que você faz?",
-                options: [
-                    { text: "Ignoro, não é meu lixo", correct: false },
-                    { text: "Recolho o lixo e jogo na lixeira", correct: true },
-                    { text: "Jogo meu lixo junto com os outros", correct: false },
-                    { text: "Chuto o lixo para longe", correct: false }
-                ],
-                feedback: {
-                    correct: "Excelente! 🌟 Recolher o lixo da praia protege os animais marinhos. Plásticos e outros resíduos podem ser confundidos com alimento por tartarugas e peixes.",
-                    incorrect: "Atenção! ⚠️ O lixo na praia pode ir para o mar e prejudicar tartarugas, peixes e corais. Sempre recolha o lixo e descarte corretamente!"
-                }
-            },
-            {
-                emoji: "🎣",
-                question: "Você vê pescadores capturando muitos peixes pequenos. Qual é o problema?",
-                options: [
-                    { text: "Nenhum problema, são só peixinhos", correct: false },
-                    { text: "Peixes pequenos precisam crescer para reproduzir", correct: true },
-                    { text: "Peixes pequenos são mais saborosos", correct: false },
-                    { text: "Mais peixes = melhor para todos", correct: false }
-                ],
-                feedback: {
-                    correct: "Perfeito! 🐟 A pesca de peixes muito jovens impede a reprodução e pode acabar com os cardumes. É importante respeitar o tamanho mínimo de captura!",
-                    incorrect: "Cuidado! 🎣 Pescar peixes pequenos demais impede que eles cresçam e tenham filhotes. Isso pode acabar com os peixes do mar!"
-                }
-            },
-            {
-                emoji: "🪸",
-                question: "Você mergulha e vê corais brancos, sem cor. O que está acontecendo?",
-                options: [
-                    { text: "Os corais estão doentes pelo aquecimento do mar", correct: true },
-                    { text: "É a cor natural dos corais", correct: false },
-                    { text: "Alguém pintou os corais", correct: false },
-                    { text: "Os corais estão mais bonitos assim", correct: false }
-                ],
-                feedback: {
-                    correct: "Muito bem! 🪸 O branqueamento dos corais acontece quando a água fica muito quente. Os corais expulsam as algas que dão cor e alimento a eles, ficando doentes.",
-                    incorrect: "Ops! 🌡️ Corais brancos estão doentes! Isso acontece pelo aquecimento do mar. Sem a cor, os corais perdem nutrição e podem morrer."
-                }
-            },
-            {
-                emoji: "🐢",
-                question: "Uma tartaruga está presa em uma rede de pesca na praia. O que fazer?",
-                options: [
-                    { text: "Tiro foto e posto nas redes sociais", correct: false },
-                    { text: "Chamo adultos e ligo para resgate de animais", correct: true },
-                    { text: "Tento libertar sozinho puxando forte", correct: false },
-                    { text: "Deixo ela lá, vai se soltar sozinha", correct: false }
-                ],
-                feedback: {
-                    correct: "Excelente decisão! 🐢 Chamar profissionais é o correto. Eles sabem como resgatar sem machucar a tartaruga. Em Arraial do Cabo, você pode contatar o Projeto TAMAR!",
-                    incorrect: "Atenção! 🆘 Tartarugas presas precisam de ajuda profissional. Puxar pode machucá-la. Sempre chame adultos e ligue para órgãos de resgate!"
-                }
-            },
-            {
-                emoji: "🏭",
-                question: "Fábricas jogam produtos químicos no mar. Qual o impacto?",
-                options: [
-                    { text: "Nenhum, o mar é grande", correct: false },
-                    { text: "Mata peixes, corais e contamina a água", correct: true },
-                    { text: "Ajuda os peixes a crescerem", correct: false },
-                    { text: "Deixa a água mais limpa", correct: false }
-                ],
-                feedback: {
-                    correct: "Correto! 🏭 Produtos químicos envenenam a água, matam peixes e corais, e podem contaminar até os humanos que comem esses peixes.",
-                    incorrect: "Errado! ⚠️ Poluição industrial mata a vida marinha. Peixes, corais e plantas morrem. A água fica tóxica e perigosa para todos!"
-                }
-            },
-            {
-                emoji: "🛟",
-                question: "Como VOCÊ pode ajudar a proteger o oceano de Arraial do Cabo no dia a dia?",
-                options: [
-                    { text: "Usando menos plástico e reciclando", correct: true },
-                    { text: "Jogando lixo em qualquer lugar", correct: false },
-                    { text: "Não fazendo nada, sou só uma criança", correct: false },
-                    { text: "Usando mais sacolas plásticas", correct: false }
-                ],
-                feedback: {
-                    correct: "Incrível! 🌟 Cada ação conta! Reduzir plástico, reciclar, não jogar lixo no chão... Pequenas atitudes fazem grande diferença para o oceano!",
-                    incorrect: "Você pode ajudar! 💪 Usando menos plástico, reciclando e cuidando do lixo, você protege o oceano. Toda criança pode ser um herói do mar!"
-                }
+    <!-- Tela Inicial -->
+    <div id="startScreen" class="start-screen">
+        <h2>Bem-vindo ao Quiz Interativo!</h2>
+        <p>
+            Teste seus conhecimentos sobre o impacto humano no oceano de Arraial do Cabo.
+            Você verá situações reais e precisará escolher a melhor ação para ajudar o meio ambiente marinho.
+        </p>
+        <p>
+            <strong>São 6 perguntas</strong> sobre poluição, preservação e cuidados com o oceano.
+        </p>
+        <button class="btn" onclick="startQuiz()">🎮 Começar Quiz</button>
+    </div>
+
+    <!-- Tela do Quiz -->
+    <div id="quizScreen" style="display: none;">
+        <div class="progress-bar">
+            <div id="progressFill" class="progress-fill"></div>
+        </div>
+
+        <div class="score-board">
+            <div class="score-item">
+                <div class="label">Questão</div>
+                <div class="value" id="currentQuestion">1/6</div>
+            </div>
+            <div class="score-item">
+                <div class="label">Pontos</div>
+                <div class="value" id="score">0</div>
+            </div>
+            <div class="score-item">
+                <div class="label">Acertos</div>
+                <div class="value" id="correct">0</div>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div id="situationImage" class="situation-image">🗑️</div>
+            <div id="questionText" class="question-text"></div>
+            <div id="options" class="options"></div>
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+
+        <button id="nextBtn" class="btn" onclick="nextQuestion()" style="display: none;">
+            Próxima Pergunta →
+        </button>
+    </div>
+
+    <!-- Tela de Resultado -->
+    <div id="resultScreen" class="result-screen">
+        <div id="resultEmoji" class="result-emoji">🏆</div>
+        <div class="result-title">Quiz Finalizado!</div>
+        <div class="result-score" id="finalScore">0/6</div>
+        <div class="result-message" id="resultMessage"></div>
+        <button class="btn" onclick="restartQuiz()">🔄 Jogar Novamente</button>
+    </div>
+</div>
+
+<script>
+    // Banco de perguntas
+    const questions = [
+        {
+            emoji: "🗑️",
+            question: "Você está na praia de Arraial do Cabo e vê muito lixo na areia. O que você faz?",
+            options: [
+                { text: "Ignoro, não é meu lixo", correct: false },
+                { text: "Recolho o lixo e jogo na lixeira", correct: true },
+                { text: "Jogo meu lixo junto com os outros", correct: false },
+                { text: "Chuto o lixo para longe", correct: false }
+            ],
+            feedback: {
+                correct: "Excelente! 🌟 Recolher o lixo da praia protege os animais marinhos. Plásticos e outros resíduos podem ser confundidos com alimento por tartarugas e peixes.",
+                incorrect: "Atenção! ⚠️ O lixo na praia pode ir para o mar e prejudicar tartarugas, peixes e corais. Sempre recolha o lixo e descarte corretamente!"
             }
-        ];
-
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let correctAnswers = 0;
-        let selectedOption = null;
-
-        function startQuiz() {
-            document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('quizScreen').style.display = 'block';
-            showQuestion();
+        },
+        {
+            emoji: "🎣",
+            question: "Você vê pescadores capturando muitos peixes pequenos. Qual é o problema?",
+            options: [
+                { text: "Nenhum problema, são só peixinhos", correct: false },
+                { text: "Peixes pequenos precisam crescer para reproduzir", correct: true },
+                { text: "Peixes pequenos são mais saborosos", correct: false },
+                { text: "Mais peixes = melhor para todos", correct: false }
+            ],
+            feedback: {
+                correct: "Perfeito! 🐟 A pesca de peixes muito jovens impede a reprodução e pode acabar com os cardumes. É importante respeitar o tamanho mínimo de captura!",
+                incorrect: "Cuidado! 🎣 Pescar peixes pequenos demais impede que eles cresçam e tenham filhotes. Isso pode acabar com os peixes do mar!"
+            }
+        },
+        {
+            emoji: "🪸",
+            question: "Você mergulha e vê corais brancos, sem cor. O que está acontecendo?",
+            options: [
+                { text: "Os corais estão doentes pelo aquecimento do mar", correct: true },
+                { text: "É a cor natural dos corais", correct: false },
+                { text: "Alguém pintou os corais", correct: false },
+                { text: "Os corais estão mais bonitos assim", correct: false }
+            ],
+            feedback: {
+                correct: "Muito bem! 🪸 O branqueamento dos corais acontece quando a água fica muito quente. Os corais expulsam as algas que dão cor e alimento a eles, ficando doentes.",
+                incorrect: "Ops! 🌡️ Corais brancos estão doentes! Isso acontece pelo aquecimento do mar. Sem a cor, os corais perdem nutrição e podem morrer."
+            }
+        },
+        {
+            emoji: "🐢",
+            question: "Uma tartaruga está presa em uma rede de pesca na praia. O que fazer?",
+            options: [
+                { text: "Tiro foto e posto nas redes sociais", correct: false },
+                { text: "Chamo adultos e ligo para resgate de animais", correct: true },
+                { text: "Tento libertar sozinho puxando forte", correct: false },
+                { text: "Deixo ela lá, vai se soltar sozinha", correct: false }
+            ],
+            feedback: {
+                correct: "Excelente decisão! 🐢 Chamar profissionais é o correto. Eles sabem como resgatar sem machucar a tartaruga. Em Arraial do Cabo, você pode contatar o Projeto TAMAR!",
+                incorrect: "Atenção! 🆘 Tartarugas presas precisam de ajuda profissional. Puxar pode machucá-la. Sempre chame adultos e ligue para órgãos de resgate!"
+            }
+        },
+        {
+            emoji: "🏭",
+            question: "Fábricas jogam produtos químicos no mar. Qual o impacto?",
+            options: [
+                { text: "Nenhum, o mar é grande", correct: false },
+                { text: "Mata peixes, corais e contamina a água", correct: true },
+                { text: "Ajuda os peixes a crescerem", correct: false },
+                { text: "Deixa a água mais limpa", correct: false }
+            ],
+            feedback: {
+                correct: "Correto! 🏭 Produtos químicos envenenam a água, matam peixes e corais, e podem contaminar até os humanos que comem esses peixes.",
+                incorrect: "Errado! ⚠️ Poluição industrial mata a vida marinha. Peixes, corais e plantas morrem. A água fica tóxica e perigosa para todos!"
+            }
+        },
+        {
+            emoji: "🛟",
+            question: "Como VOCÊ pode ajudar a proteger o oceano de Arraial do Cabo no dia a dia?",
+            options: [
+                { text: "Usando menos plástico e reciclando", correct: true },
+                { text: "Jogando lixo em qualquer lugar", correct: false },
+                { text: "Não fazendo nada, sou só uma criança", correct: false },
+                { text: "Usando mais sacolas plásticas", correct: false }
+            ],
+            feedback: {
+                correct: "Incrível! 🌟 Cada ação conta! Reduzir plástico, reciclar, não jogar lixo no chão... Pequenas atitudes fazem grande diferença para o oceano!",
+                incorrect: "Você pode ajudar! 💪 Usando menos plástico, reciclando e cuidando do lixo, você protege o oceano. Toda criança pode ser um herói do mar!"
+            }
         }
+    ];
 
-        function showQuestion() {
-            const question = questions[currentQuestionIndex];
-            
-            document.getElementById('situationImage').textContent = question.emoji;
-            document.getElementById('questionText').textContent = question.question;
-            document.getElementById('currentQuestion').textContent = `${currentQuestionIndex + 1}/${questions.length}`;
-            
-            const optionsContainer = document.getElementById('options');
-            optionsContainer.innerHTML = '';
-            
-            question.options.forEach((option, index) => {
-                const optionDiv = document.createElement('div');
-                optionDiv.className = 'option';
-                optionDiv.textContent = option.text;
-                optionDiv.onclick = () => selectOption(index);
-                optionsContainer.appendChild(optionDiv);
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let correctAnswers = 0;
+    let selectedOption = null;
+
+    function startQuiz() {
+        document.getElementById('startScreen').style.display = 'none';
+        document.getElementById('quizScreen').style.display = 'block';
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const question = questions[currentQuestionIndex];
+
+        document.getElementById('situationImage').textContent = question.emoji;
+        document.getElementById('questionText').textContent = question.question;
+        document.getElementById('currentQuestion').textContent = `${currentQuestionIndex + 1}/${questions.length}`;
+
+        const optionsContainer = document.getElementById('options');
+        optionsContainer.innerHTML = '';
+
+        question.options.forEach((option, index) => {
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'option';
+            optionDiv.textContent = option.text;
+            optionDiv.onclick = () => selectOption(index);
+            optionsContainer.appendChild(optionDiv);
+        });
+
+        document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+        document.getElementById('nextBtn').style.display = 'none';
+        selectedOption = null;
+
+        updateProgress();
+        updateButtonText();
+    }
+
+    function updateButtonText() {
+        const nextBtn = document.getElementById('nextBtn');
+        if (currentQuestionIndex === questions.length - 1) {
+            nextBtn.textContent = '🏁 Finalizar';
+        } else {
+            nextBtn.textContent = 'Próxima Pergunta →';
+        }
+    }
+
+    function selectOption(index) {
+        if (selectedOption !== null) return;
+
+        selectedOption = index;
+        const question = questions[currentQuestionIndex];
+        const options = document.querySelectorAll('.option');
+        const isCorrect = question.options[index].correct;
+
+        options[index].classList.add(isCorrect ? 'correct' : 'incorrect');
+
+        if (isCorrect) {
+            score += 10;
+            correctAnswers++;
+            document.getElementById('score').textContent = score;
+            document.getElementById('correct').textContent = correctAnswers;
+        } else {
+            options.forEach((opt, i) => {
+                if (question.options[i].correct) {
+                    opt.classList.add('correct');
+                }
             });
-
-            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
-            document.getElementById('nextBtn').style.display = 'none';
-            selectedOption = null;
-
-            updateProgress();
         }
 
-        function selectOption(index) {
-            if (selectedOption !== null) return;
-            
-            selectedOption = index;
-            const question = questions[currentQuestionIndex];
-            const options = document.querySelectorAll('.option');
-            const isCorrect = question.options[index].correct;
-
-            options[index].classList.add(isCorrect ? 'correct' : 'incorrect');
-
-            if (isCorrect) {
-                score += 10;
-                correctAnswers++;
-                document.getElementById('score').textContent = score;
-                document.getElementById('correct').textContent = correctAnswers;
-            } else {
-                options.forEach((opt, i) => {
-                    if (question.options[i].correct) {
-                        opt.classList.add('correct');
-                    }
-                });
-            }
-
-            const feedback = document.getElementById('feedback');
-            feedback.className = 'feedback show ' + (isCorrect ? 'correct' : 'incorrect');
-            feedback.innerHTML = `
+        const feedback = document.getElementById('feedback');
+        feedback.className = 'feedback show ' + (isCorrect ? 'correct' : 'incorrect');
+        feedback.innerHTML = `
                 <div class="feedback-title">${isCorrect ? '✅ Resposta Correta!' : '❌ Resposta Incorreta'}</div>
                 <div>${isCorrect ? question.feedback.correct : question.feedback.incorrect}</div>
             `;
 
-            document.getElementById('nextBtn').style.display = 'block';
+        document.getElementById('nextBtn').style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < questions.length) {
+            showQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function updateProgress() {
+        const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+    }
+
+    function showResult() {
+        document.getElementById('quizScreen').style.display = 'none';
+        document.getElementById('resultScreen').classList.add('show');
+
+        const percentage = (correctAnswers / questions.length) * 100;
+        let emoji, message;
+
+        if (percentage === 100) {
+            emoji = '🏆';
+            message = 'PERFEITO! Você é um verdadeiro guardião dos oceanos! Continue protegendo o mar de Arraial do Cabo! 🌊';
+        } else if (percentage >= 80) {
+            emoji = '🌟';
+            message = 'Excelente! Você sabe muito sobre preservação marinha! Continue aprendendo e protegendo nosso oceano! 🐠';
+        } else if (percentage >= 60) {
+            emoji = '👍';
+            message = 'Muito bem! Você está no caminho certo. Continue aprendendo sobre como cuidar do oceano! 🐢';
+        } else if (percentage >= 40) {
+            emoji = '📚';
+            message = 'Você pode melhorar! Que tal jogar novamente e aprender mais sobre o oceano? 🌊';
+        } else {
+            emoji = '💪';
+            message = 'Não desista! Jogue novamente e descubra como proteger o oceano de Arraial do Cabo! 🐟';
         }
 
-        function nextQuestion() {
-            currentQuestionIndex++;
-            
-            if (currentQuestionIndex < questions.length) {
-                showQuestion();
-            } else {
-                showResult();
-            }
+        document.getElementById('resultEmoji').textContent = emoji;
+        document.getElementById('finalScore').textContent = `${correctAnswers}/${questions.length}`;
+        document.getElementById('resultMessage').textContent = message;
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        correctAnswers = 0;
+        selectedOption = null;
+
+        document.getElementById('score').textContent = '0';
+        document.getElementById('correct').textContent = '0';
+        document.getElementById('resultScreen').classList.remove('show');
+        document.getElementById('startScreen').style.display = 'block';
+    }
+
+    function confirmExit() {
+        // Se estiver na tela inicial, não precisa confirmar
+        if (document.getElementById('startScreen').style.display !== 'none') {
+            window.location.href = 'index.html';
+            return;
         }
 
-        function updateProgress() {
-            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-            document.getElementById('progressFill').style.width = progress + '%';
+        // Se estiver jogando, pedir confirmação
+        if (confirm('Tem certeza que deseja voltar ao menu? Seu progresso será perdido.')) {
+            window.location.href = 'index.html';
         }
-
-        function showResult() {
-            document.getElementById('quizScreen').style.display = 'none';
-            document.getElementById('resultScreen').classList.add('show');
-            
-            const percentage = (correctAnswers / questions.length) * 100;
-            let emoji, message;
-
-            if (percentage === 100) {
-                emoji = '🏆';
-                message = 'PERFEITO! Você é um verdadeiro guardião dos oceanos! Continue protegendo o mar de Arraial do Cabo! 🌊';
-            } else if (percentage >= 80) {
-                emoji = '🌟';
-                message = 'Excelente! Você sabe muito sobre preservação marinha! Continue aprendendo e protegendo nosso oceano! 🐠';
-            } else if (percentage >= 60) {
-                emoji = '👍';
-                message = 'Muito bem! Você está no caminho certo. Continue aprendendo sobre como cuidar do oceano! 🐢';
-            } else if (percentage >= 40) {
-                emoji = '📚';
-                message = 'Você pode melhorar! Que tal jogar novamente e aprender mais sobre o oceano? 🌊';
-            } else {
-                emoji = '💪';
-                message = 'Não desista! Jogue novamente e descubra como proteger o oceano de Arraial do Cabo! 🐟';
-            }
-
-            document.getElementById('resultEmoji').textContent = emoji;
-            document.getElementById('finalScore').textContent = `${correctAnswers}/${questions.length}`;
-            document.getElementById('resultMessage').textContent = message;
-        }
-
-        function restartQuiz() {
-            currentQuestionIndex = 0;
-            score = 0;
-            correctAnswers = 0;
-            selectedOption = null;
-            
-            document.getElementById('score').textContent = '0';
-            document.getElementById('correct').textContent = '0';
-            document.getElementById('resultScreen').classList.remove('show');
-            document.getElementById('startScreen').style.display = 'block';
-        }
-    </script>
+    }
+</script>
 </body>
 </html>
