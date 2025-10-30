@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escolha Certa ou Errada - Oceano de Arraial do Cabo</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>✅</text></svg>">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #0d1b2a 0%, #1b3a4b 50%, #2b5a72 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Bolhas animadas de fundo */
+        .bubble {
+            position: fixed;
+            bottom: -100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: rise 20s infinite ease-in;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes rise {
+            to {
+                bottom: 110vh;
+                transform: translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        .bubble:nth-child(1) { width: 60px; height: 60px; left: 10%; animation-delay: 0s; }
+        .bubble:nth-child(2) { width: 40px; height: 40px; left: 25%; animation-delay: 3s; }
+        .bubble:nth-child(3) { width: 80px; height: 80px; left: 50%; animation-delay: 6s; }
+        .bubble:nth-child(4) { width: 50px; height: 50px; left: 70%; animation-delay: 2s; }
+        .bubble:nth-child(5) { width: 70px; height: 70px; left: 85%; animation-delay: 5s; }
+        .bubble:nth-child(6) { width: 45px; height: 45px; left: 15%; animation-delay: 8s; }
+        .bubble:nth-child(7) { width: 65px; height: 65px; left: 90%; animation-delay: 1s; }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+            animation: slideIn 0.5s ease-out;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #00838f;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header .emoji {
+            font-size: 3em;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .back-button:hover {
+            background: #5a6268;
+            transform: scale(1.05);
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-item .label {
+            color: #00838f;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .score-item .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .score-item.correct .value {
+            color: #4caf50;
+        }
+
+        .score-item.incorrect .value {
+            color: #f44336;
+        }
+
+        .score-item.total .value {
+            color: #00838f;
+        }
+
+        .situation-card {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            animation: cardAppear 0.5s ease-out;
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .situation-icon {
+            font-size: 6em;
+            margin-bottom: 20px;
+            display: block;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .situation-text {
+            color: #2c3e50;
+            font-size: 1.5em;
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .situation-description {
+            color: #6c757d;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .choices {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .choice-btn {
+            padding: 40px 20px;
+            border: 4px solid transparent;
+            border-radius: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .choice-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.3);
+            transition: left 0.5s ease;
+        }
+
+        .choice-btn:hover::before {
+            left: 100%;
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .choice-btn.correct-choice {
+            background: linear-gradient(135deg, #66bb6a, #4caf50);
+            color: white;
+            border-color: #388e3c;
+        }
+
+        .choice-btn.incorrect-choice {
+            background: linear-gradient(135deg, #ef5350, #f44336);
+            color: white;
+            border-color: #c62828;
+        }
+
+        .choice-btn .icon {
+            font-size: 3em;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .choice-btn.clicked {
+            animation: clickEffect 0.3s ease;
+        }
+
+        @keyframes clickEffect {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .choice-btn.correct-animation {
+            animation: correctPulse 0.6s ease;
+        }
+
+        .choice-btn.incorrect-animation {
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-15px); }
+            75% { transform: translateX(15px); }
+        }
+
+        .feedback {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            border-left: 6px solid #4caf50;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        }
+
+        .feedback.incorrect {
+            border-left: 6px solid #f44336;
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+        }
+
+        .feedback-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feedback-title .icon {
+            font-size: 1.5em;
+        }
+
+        .feedback-text {
+            color: #2c3e50;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #00838f, #00bcd4);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,131,143,0.3);
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,188,212,0.4);
+        }
+
+        .next-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .start-screen, .result-screen {
+            text-align: center;
+            display: none;
+        }
+
+        .start-screen.show, .result-screen.show {
+            display: block;
+        }
+
+        .start-screen h2 {
+            color: #00838f;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .start-screen p {
+            color: #6c757d;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #00838f, #00bcd4);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            border-radius: 30px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0,131,143,0.3);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,188,212,0.4);
+        }
+
+        .result-emoji {
+            font-size: 6em;
+            margin: 20px 0;
+        }
+
+        .result-title {
+            font-size: 2.5em;
+            color: #00838f;
+            margin-bottom: 20px;
+        }
+
+        .result-stats {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .result-stats p {
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin: 10px 0;
+        }
+
+        .result-message {
+            font-size: 1.2em;
+            color: #6c757d;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                padding-top: 60px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .situation-icon {
+                font-size: 4em;
+            }
+
+            .situation-text {
+                font-size: 1.2em;
+            }
+
+            .situation-description {
+                font-size: 1em;
+            }
+
+            .choices {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .choice-btn {
+                padding: 30px 15px;
+                font-size: 1.1em;
+            }
+
+            .choice-btn .icon {
+                font-size: 2.5em;
+            }
+
+            .back-button {
+                position: static;
+                margin-bottom: 20px;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Bolhas animadas -->
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+
+<div class="container">
+    <button onclick="confirmExit()" class="back-button">← Voltar ao Início</button>
+
+    <div class="header">
+        <div class="emoji">✅</div>
+        <h1>Escolha Certa ou Errada</h1>
+        <p style="color: #6c757d;">Teste suas decisões sobre o oceano!</p>
+    </div>
+
+    <!-- Tela Inicial -->
+    <div id="startScreen" class="start-screen show">
+        <h2>🌊 Você sabe o que ajuda o oceano?</h2>
+        <p>
+            Você verá situações do dia a dia e precisará decidir se a ação é
+            <strong style="color: #4caf50;">CERTA ✅</strong> ou
+            <strong style="color: #f44336;">ERRADA ❌</strong> para o oceano.
+        </p>
+        <p>
+            <strong>10 situações</strong> para testar seu conhecimento sobre preservação marinha!
+        </p>
+        <button class="start-btn" onclick="startGame()">🎮 Começar Jogo</button>
+    </div>
+
+    <!-- Tela do Jogo -->
+    <div id="gameScreen" style="display: none;">
+        <div class="score-board">
+            <div class="score-item total">
+                <div class="label">Situações</div>
+                <div class="value" id="currentSituation">1/10</div>
+            </div>
+            <div class="score-item correct">
+                <div class="label">Acertos ✅</div>
+                <div class="value" id="correctCount">0</div>
+            </div>
+            <div class="score-item incorrect">
+                <div class="label">Erros ❌</div>
+                <div class="value" id="incorrectCount">0</div>
+            </div>
+        </div>
+
+        <div class="situation-card">
+            <span id="situationIcon" class="situation-icon">🏖️</span>
+            <div id="situationText" class="situation-text"></div>
+            <div id="situationDescription" class="situation-description"></div>
+        </div>
+
+        <div class="choices">
+            <button class="choice-btn correct-choice" onclick="makeChoice(true)">
+                <span class="icon">✅</span>
+                CERTO
+            </button>
+            <button class="choice-btn incorrect-choice" onclick="makeChoice(false)">
+                <span class="icon">❌</span>
+                ERRADO
+            </button>
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+
+        <button id="nextBtn" class="next-btn" onclick="nextSituation()" style="display: none;">
+            Próxima Situação →
+        </button>
+    </div>
+
+    <!-- Tela de Resultado -->
+    <div id="resultScreen" class="result-screen">
+        <div id="resultEmoji" class="result-emoji">🏆</div>
+        <div class="result-title">Jogo Finalizado!</div>
+
+        <div class="result-stats">
+            <p><strong>Situações:</strong> <span id="finalTotal">10</span></p>
+            <p style="color: #4caf50;"><strong>✅ Acertos:</strong> <span id="finalCorrect">0</span></p>
+            <p style="color: #f44336;"><strong>❌ Erros:</strong> <span id="finalIncorrect">0</span></p>
+            <p><strong>Aproveitamento:</strong> <span id="finalPercentage">0%</span></p>
+        </div>
+
+        <div class="result-message" id="resultMessage"></div>
+
+        <button class="start-btn" onclick="restartGame()">🔄 Jogar Novamente</button>
+    </div>
+</div>
+
+<script>
+    const situations = [
+        {
+            icon: "🏖️",
+            text: "Jogar lixo na areia da praia",
+            description: "Uma criança termina de comer um salgadinho e joga a embalagem na areia.",
+            isCorrect: false,
+            feedback: {
+                correct: "Errado mesmo! ❌ O lixo na praia vai para o mar e pode matar animais marinhos. Sempre use a lixeira!",
+                incorrect: "Ops! 🤔 Na verdade, jogar lixo na praia é ERRADO! O lixo vai para o oceano e prejudica a vida marinha. Sempre descarte corretamente!"
+            }
+        },
+        {
+            icon: "♻️",
+            text: "Separar o lixo para reciclagem",
+            description: "Uma família separa plástico, papel e vidro em casa.",
+            isCorrect: true,
+            feedback: {
+                correct: "Isso mesmo! ✅ Reciclar reduz o lixo que vai parar no oceano. Menos plástico no mar = mais vida marinha!",
+                incorrect: "Não! ❌ Reciclar é CERTO! Separar o lixo ajuda a reduzir a poluição dos oceanos e salva animais marinhos."
+            }
+        },
+        {
+            icon: "🎣",
+            text: "Pescar peixes muito pequenos",
+            description: "Um pescador captura peixes menores que sua mão.",
+            isCorrect: false,
+            feedback: {
+                correct: "Exato! ❌ Pescar peixes pequenos impede que eles cresçam e tenham filhotes. Isso acaba com os cardumes!",
+                incorrect: "Atenção! ⚠️ Pescar peixes pequenos é ERRADO! Eles precisam crescer e se reproduzir para manter o equilíbrio do mar."
+            }
+        },
+        {
+            icon: "🚰",
+            text: "Economizar água em casa",
+            description: "Uma pessoa fecha a torneira ao escovar os dentes.",
+            isCorrect: true,
+            feedback: {
+                correct: "Perfeito! ✅ Economizar água ajuda os rios que vão para o mar. Menos desperdício = oceanos mais saudáveis!",
+                incorrect: "Ops! 🌊 Economizar água é CERTO! A água dos rios vai para o oceano, então economizar ajuda todo o ecossistema marinho."
+            }
+        },
+        {
+            icon: "🛢️",
+            text: "Jogar óleo de cozinha no ralo",
+            description: "Alguém despeja óleo usado da fritadeira na pia.",
+            isCorrect: false,
+            feedback: {
+                correct: "Certíssimo! ❌ Óleo no ralo contamina rios e mares. 1 litro de óleo polui 1 milhão de litros de água!",
+                incorrect: "Cuidado! ⚠️ Jogar óleo no ralo é ERRADO! Ele contamina a água e chega ao oceano, matando peixes e corais."
+            }
+        },
+        {
+            icon: "🛍️",
+            text: "Usar sacolas reutilizáveis",
+            description: "Uma pessoa leva sua própria sacola de pano ao supermercado.",
+            isCorrect: true,
+            feedback: {
+                correct: "Muito bem! ✅ Sacolas reutilizáveis reduzem plástico. Tartarugas confundem sacolas plásticas com águas-vivas e morrem!",
+                incorrect: "Não! ❌ Usar sacolas reutilizáveis é CERTO! Menos plástico = menos animais marinhos mortos."
+            }
+        },
+        {
+            icon: "🧴",
+            text: "Jogar protetor solar químico direto no mar",
+            description: "Banhistas passam protetor e entram imediatamente na água.",
+            isCorrect: false,
+            feedback: {
+                correct: "Isso! ❌ Protetores químicos matam corais! Use protetores biodegradáveis ou espere 20 minutos antes de entrar na água.",
+                incorrect: "Atenção! 🪸 Isso é ERRADO! Alguns protetores solares químicos matam corais. Use produtos biodegradáveis!"
+            }
+        },
+        {
+            icon: "🐢",
+            text: "Resgatar animais marinhos feridos",
+            description: "Alguém encontra uma tartaruga ferida e liga para órgãos de resgate.",
+            isCorrect: true,
+            feedback: {
+                correct: "Perfeito! ✅ Chamar profissionais salva vidas! Em Arraial do Cabo, você pode contatar o Projeto TAMAR.",
+                incorrect: "Não! ❌ Resgatar animais marinhos é CERTO! Sempre chame profissionais especializados como o Projeto TAMAR."
+            }
+        },
+        {
+            icon: "🚢",
+            text: "Jogar lixo de barcos no oceano",
+            description: "Tripulantes de um barco descartam garrafas plásticas no mar.",
+            isCorrect: false,
+            feedback: {
+                correct: "Exatamente! ❌ Lixo de barcos mata milhares de animais marinhos todo ano. Todo lixo deve ser trazido de volta!",
+                incorrect: "Errado! ⚠️ Jogar lixo no mar é ERRADO! É crime ambiental e mata a vida marinha. Todo lixo deve voltar para terra."
+            }
+        },
+        {
+            icon: "🌱",
+            text: "Participar de limpeza de praias",
+            description: "Voluntários recolhem lixo das praias em um mutirão.",
+            isCorrect: true,
+            feedback: {
+                correct: "Maravilhoso! ✅ Mutirões de limpeza removem toneladas de lixo. Cada pessoa faz diferença na preservação do oceano!",
+                incorrect: "Não! ❌ Participar de limpeza de praias é CERTO! É uma das melhores formas de ajudar o oceano diretamente."
+            }
+        }
+    ];
+
+    let currentIndex = 0;
+    let correctCount = 0;
+    let incorrectCount = 0;
+    let answered = false;
+
+    function startGame() {
+        document.getElementById('startScreen').classList.remove('show');
+        document.getElementById('gameScreen').style.display = 'block';
+        showSituation();
+    }
+
+    function showSituation() {
+        const situation = situations[currentIndex];
+
+        document.getElementById('situationIcon').textContent = situation.icon;
+        document.getElementById('situationText').textContent = situation.text;
+        document.getElementById('situationDescription').textContent = situation.description;
+        document.getElementById('currentSituation').textContent = `${currentIndex + 1}/${situations.length}`;
+
+        document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+        document.getElementById('nextBtn').style.display = 'none';
+
+        // Reabilitar botões
+        const buttons = document.querySelectorAll('.choice-btn');
+        buttons.forEach(btn => {
+            btn.disabled = false;
+            btn.classList.remove('clicked', 'correct-animation', 'incorrect-animation');
+        });
+
+        answered = false;
+        
+        // Atualizar texto do botão
+        updateButtonText();
+    }
+
+    function updateButtonText() {
+        const nextBtn = document.getElementById('nextBtn');
+        if (currentIndex === situations.length - 1) {
+            nextBtn.textContent = '🏁 Ver Resultado';
+        } else {
+            nextBtn.textContent = 'Próxima Situação →';
+        }
+    }
+
+    function makeChoice(userChoice) {
+        if (answered) return;
+
+        answered = true;
+        const situation = situations[currentIndex];
+        const isCorrect = userChoice === situation.isCorrect;
+
+        const buttons = document.querySelectorAll('.choice-btn');
+        buttons.forEach(btn => btn.disabled = true);
+
+        // Animação no botão clicado
+        const clickedBtn = userChoice ? buttons[0] : buttons[1];
+        clickedBtn.classList.add('clicked');
+
+        setTimeout(() => {
+            if (isCorrect) {
+                correctCount++;
+                document.getElementById('correctCount').textContent = correctCount;
+                clickedBtn.classList.add('correct-animation');
+                showFeedback(true, situation.feedback.correct);
+            } else {
+                incorrectCount++;
+                document.getElementById('incorrectCount').textContent = incorrectCount;
+                clickedBtn.classList.add('incorrect-animation');
+                showFeedback(false, situation.feedback.incorrect);
+            }
+
+            document.getElementById('nextBtn').style.display = 'block';
+        }, 300);
+    }
+
+    function showFeedback(isCorrect, message) {
+        const feedback = document.getElementById('feedback');
+        feedback.className = 'feedback show ' + (isCorrect ? 'correct' : 'incorrect');
+
+        const icon = isCorrect ? '✅' : '❌';
+        const title = isCorrect ? 'Resposta Correta!' : 'Resposta Incorreta';
+
+        feedback.innerHTML = `
+            <div class="feedback-title">
+                <span class="icon">${icon}</span>
+                ${title}
+            </div>
+            <div class="feedback-text">${message}</div>
+        `;
+    }
+
+    function nextSituation() {
+        currentIndex++;
+
+        if (currentIndex < situations.length) {
+            showSituation();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('resultScreen').classList.add('show');
+
+        const percentage = Math.round((correctCount / situations.length) * 100);
+
+        document.getElementById('finalTotal').textContent = situations.length;
+        document.getElementById('finalCorrect').textContent = correctCount;
+        document.getElementById('finalIncorrect').textContent = incorrectCount;
+        document.getElementById('finalPercentage').textContent = percentage + '%';
+
+        let emoji, message;
+
+        if (percentage === 100) {
+            emoji = '🏆';
+            message = 'PERFEITO! Você é um verdadeiro guardião dos oceanos! Suas decisões sempre protegem o mar de Arraial do Cabo! 🌊';
+        } else if (percentage >= 80) {
+            emoji = '🌟';
+            message = 'Excelente! Você sabe muito sobre preservação marinha! Continue fazendo boas escolhas pelo oceano! 🐠';
+        } else if (percentage >= 60) {
+            emoji = '👍';
+            message = 'Muito bem! Você está aprendendo. Continue praticando para tomar sempre as melhores decisões! 🐢';
+        } else if (percentage >= 40) {
+            emoji = '📚';
+            message = 'Você pode melhorar! Jogue novamente e aprenda mais sobre como proteger o oceano! 🌊';
+        } else {
+            emoji = '💪';
+            message = 'Não desista! Cada escolha importa. Jogue novamente e descubra como suas ações afetam o oceano! 🐟';
+        }
+
+        document.getElementById('resultEmoji').textContent = emoji;
+        document.getElementById('resultMessage').textContent = message;
+    }
+
+    function restartGame() {
+        currentIndex = 0;
+        correctCount = 0;
+        incorrectCount = 0;
+        answered = false;
+
+        document.getElementById('correctCount').textContent = '0';
+        document.getElementById('incorrectCount').textContent = '0';
+        document.getElementById('resultScreen').classList.remove('show');
+        document.getElementById('startScreen').classList.add('show');
+    }
+
+    function confirmExit() {
+        if (document.getElementById('startScreen').classList.contains('show')) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        if (confirm('Tem certeza que deseja voltar ao menu? Seu progresso será perdido.')) {
+            window.location.href = 'index.html';
+        }
+    }
+</script>
+</body>
+</html>
