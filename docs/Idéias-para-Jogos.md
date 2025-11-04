@@ -39,7 +39,24 @@ Ensina causa e efeito, reforçando ações corretas.
 
 ---
 
-## 3. Quebra-cabeça do Oceano
+## 3. Jogo de “Escolha Certa ou Errada”
+
+### Objetivo:
+Mostrar ações corretas e incorretas no dia a dia da criança.
+
+### Mecânica:
+Situação aparece (ex.: criança na praia jogando lixo).
+
+Jogador clica em “Certo” ou “Errado”.
+
+Feedback visual e sonoro imediato, com mensagem educativa curta.
+
+### Aprendizado:
+Ensina responsabilidade individual e impacto no oceano.
+
+---
+
+## 4. Quebra-cabeça do Oceano
 
 ### Objetivo: 
 Reconstruir imagens de ecossistemas saudáveis e poluídos.
@@ -54,7 +71,7 @@ Ao montar corretamente, surge animação curta mostrando impacto positivo ou neg
 Visualiza diferença entre oceano saudável e degradado.
 
 ---
-## 4. Jogo de Sequência: “Cadeia Alimentar”
+## 5. Jogo de Sequência: “Cadeia Alimentar”
 
 ### Objetivo: 
 Ensinar a cadeia alimentar e efeitos da poluição.
@@ -74,20 +91,7 @@ peixes somem, cardumes diminuem.
 Relação direta entre poluição e vida marinha.
 
 ---
-## 5. Jogo de “Escolha Certa ou Errada”
 
-### Objetivo: 
-Mostrar ações corretas e incorretas no dia a dia da criança.
-
-### Mecânica:
-Situação aparece (ex.: criança na praia jogando lixo).
-
-Jogador clica em “Certo” ou “Errado”.
-
-Feedback visual e sonoro imediato, com mensagem educativa curta.
-
-### Aprendizado: 
-Ensina responsabilidade individual e impacto no oceano.
 
 ---
 
