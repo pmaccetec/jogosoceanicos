@@ -22,6 +22,7 @@ index.html                    # Main landing page with game selection
 ArrastarESoltar.html          # Drag-and-drop ecosystem game (most complex)
 QuizInterativo.html           # Interactive quiz game with scoring
 EscolhaCertaOuErrada.html     # True/false choice game
+QuebraCabeca.html             # Ocean puzzle with healthy/degraded states
 docs/Idéias-para-Jogos.md     # Game design documentation (Portuguese)
 CNAME                         # Custom domain configuration
 ```
@@ -36,13 +37,13 @@ All games follow a consistent architecture:
 
 ## Available Games
 
-### Currently Implemented (3/5)
+### Currently Implemented (4/5)
 1. **Arrastar e Soltar** (Drag and Drop) - Ecosystem building game
 2. **Quiz Interativo** (Interactive Quiz) - Knowledge testing with scenarios
 3. **Escolha Certa ou Errada** (True/False Choice) - Daily action decisions
-
-### Planned Games (2/5)
 4. **Quebra-cabeça do Oceano** (Ocean Puzzle) - Image reconstruction puzzles
+
+### Planned Games (1/5)
 5. **Cadeia Alimentar** (Food Chain) - Food web sequence learning
 
 ## Development Workflow
@@ -103,6 +104,7 @@ npx serve .
 2. **`ArrastarESoltar.html`** - Most complex game with drag-and-drop mechanics
 3. **`QuizInterativo.html`** - Interactive quiz with scoring system
 4. **`EscolhaCertaOuErrada.html`** - True/false choice game mechanics
+5. **`QuebraCabeca.html`** - Image puzzle with healthy/degraded ocean states
 
 ### Documentation
 - **`docs/Idéias-para-Jogos.md`** - Game design concepts and learning objectives (Portuguese)
@@ -176,6 +178,7 @@ git remote -v
 # - ArrastarESoltar.html
 # - QuizInterativo.html
 # - EscolhaCertaOuErrada.html
+# - QuebraCabeca.html
 ```
 
 ## Common Development Tasks
@@ -197,6 +200,25 @@ git remote -v
 - Verify mobile responsiveness on actual devices
 - Check all interactive elements work properly
 - Ensure educational content displays correctly in Portuguese
+
+## Game Implementation Status
+
+Based on the latest codebase analysis:
+
+### Completed Games (4/5)
+1. **Arrastar e Soltar** - Complex drag-and-drop ecosystem reconstruction with marine species placement
+2. **Quiz Interativo** - Scenario-based knowledge testing with multiple choice questions
+3. **Escolha Certa ou Errada** - True/false decision-making game for daily actions
+4. **Quebra-cabeça do Oceano** - Image puzzle showing healthy vs degraded ocean states
+
+### Remaining Game (1/5)
+5. **Cadeia Alimentar** - Food chain sequence learning game showing pollution impact on marine life
+
+### Game Complexity Analysis
+- **ArrastarESoltar.html**: Most complex implementation with advanced drag-and-drop mechanics
+- **QuebraCabeca.html**: Canvas-based puzzle generation with image manipulation
+- **QuizInterativo.html**: Scoring system with scenario-based questions
+- **EscolhaCertaOuErrada.html**: Simple binary choice mechanics with immediate feedback
 
 ## Git Repository Information
 

@@ -95,7 +95,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 255, 255, 0.95);
+            background: transparent;
             padding: 10px 12px;
             border-radius: 12px;
             margin-bottom: 10px;
@@ -717,10 +717,10 @@
         </header>
 
         <div class="game-info">
-            <div class="score">Pontos: <span id="score">0</span></div>
+<!--            <div class="score">Pontos: <span id="score">0</span></div>-->
             <div class="top-controls">
-                <button class="top-btn" onclick="showHint()">💡 Dica</button>
-                <button class="top-btn" onclick="shufflePieces()">🔀 Embaralhar</button>
+<!--                <button class="top-btn" onclick="showHint()">💡 Dica</button>-->
+<!--                <button class="top-btn" onclick="shufflePieces()">🔀 Embaralhar</button>-->
                 <button class="back-button" onclick="backToMenu()">← Voltar</button>
             </div>
         </div>
@@ -748,6 +748,13 @@
 
             <!-- Área do jogo -->
             <div class="game-screen" id="gameScreen">
+                <div class="game-info">
+                    <div class="score">Pontos: <span id="score">0</span></div>
+                    <div class="top-controls">
+                        <button class="top-btn" onclick="showHint()">💡 Dica</button>
+                        <button class="top-btn" onclick="shufflePieces()">🔀 Embaralhar</button>
+                    </div>
+                </div>
                 <div class="puzzle-container">
                     <div class="pieces-area" id="piecesArea"></div>
                     <div class="puzzle-board" id="puzzleBoard"></div>
