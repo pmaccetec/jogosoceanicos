@@ -132,6 +132,20 @@
             background: linear-gradient(135deg, #2980b9, #1f618d);
         }
 
+        .top-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+
+        .top-btn:disabled:hover {
+            transform: none;
+            box-shadow: none;
+            background: #bdc3c7;
+        }
+
         .score {
             font-weight: bold;
             color: #2c3e50;
@@ -229,10 +243,15 @@
             display: flex;
             gap: 6px; /* Consistent gap size */
             margin-bottom: 15px;
-            min-height: 400px; /* Allow JavaScript to control exact height */
+            min-height: 250px; /* Allow JavaScript to control exact height */
             align-items: stretch;
             overflow: hidden; /* Prevent content overflow */
         }
+
+        /* Difficulty-specific max-height */
+        .puzzle-container.easy { max-height: 38vh; }
+        .puzzle-container.medium { max-height: 50vh; }
+        .puzzle-container.hard { max-height: 58vh; }
 
         .puzzle-board {
             flex: 1;
@@ -241,10 +260,12 @@
             border: 2px solid #2980b9;
             border-radius: 15px;
             display: grid;
-            padding: 15px;
+            padding: 10px;
             margin: 0 auto;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            gap: 6px;
+            gap: 6px 6px;
+            align-items: stretch;
+            justify-items: stretch;
             overflow: hidden; /* Prevent pieces from escaping */
         }
 
@@ -252,12 +273,12 @@
             background: rgba(255, 255, 255, 0.95);
             border: 2px solid #3498db;
             border-radius: 15px;
-            padding: 15px;
+            padding: 10px;
             overflow: hidden;
             display: grid;
-            gap: 6px;
-            align-items: center;
-            justify-items: center;
+            gap: 6px 6px;
+            align-items: stretch;
+            justify-items: stretch;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             flex: 1; /* Equal share with puzzle-board for 50/50 split */
         }
@@ -271,7 +292,6 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.4);
             background: white;
             margin: 0 auto;
-            align-self: center;
         }
 
         .puzzle-piece:hover {
@@ -440,7 +460,7 @@
             .pieces-area {
                 width: 100%;
                 max-width: none;
-                min-height: 150px;
+                min-height: 100px;
                 overflow: hidden;
                 padding: 12px;
                 gap: 4px;
@@ -523,7 +543,7 @@
             .pieces-area {
                 width: 100%;
                 max-width: none;
-                min-height: 120px;
+                min-height: 80px;
                 overflow: hidden;
                 padding: 10px;
                 gap: 3px;
@@ -566,7 +586,7 @@
             .puzzle-container {
                 max-width: 1400px; /* Increased for larger puzzle pieces */
                 margin: 0 auto;
-                max-height: 85vh; /* Increased height for easy difficulty */
+                max-height: 58vh; /* More compact height for better layout */
                 overflow: hidden; /* Ensure contents stay within bounds */
             }
 
@@ -585,6 +605,11 @@
             .puzzle-piece {
                 box-shadow: 0 8px 25px rgba(0,0,0,0.5);
             }
+
+            /* Difficulty-specific max-height for large screens */
+            .puzzle-container.easy { max-height: 38vh; }
+            .puzzle-container.medium { max-height: 50vh; }
+            .puzzle-container.hard { max-height: 58vh; }
         }
 
         /* Responsive gap for desktop */
@@ -754,6 +779,7 @@
                     <div class="top-controls">
                         <button class="top-btn" onclick="showHint()">💡 Dica</button>
                         <button class="top-btn" onclick="shufflePieces()">🔀 Embaralhar</button>
+                        <button class="top-btn" id="restartBtn" onclick="smartRestart()">🔄 Recomeçar</button>
                     </div>
                 </div>
                 <div class="puzzle-container">
@@ -866,6 +892,10 @@
             gameState.currentImageIndex = 0;
             gameState.isGameComplete = false;
 
+            // Apply difficulty-specific class to container
+            const container = document.querySelector('.puzzle-container');
+            container.className = container.className.replace(/easy|medium|hard/g, '').trim() + ' ' + difficulty;
+
             document.getElementById('menuScreen').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'flex';
 
@@ -932,16 +962,16 @@
                 let basePieceWidth, basePieceHeight;
                 switch (gameState.currentDifficulty) {
                     case 'easy':
-                        basePieceWidth = 960;  // 240 → 960 (4x larger)
-                        basePieceHeight = 960;
+                        basePieceWidth = 160;  // 240 → 960 (4x larger)
+                        basePieceHeight = 160;
                         break;
                     case 'medium':
-                        basePieceWidth = 200;  // 150 → 200 (+33%)
-                        basePieceHeight = 200;
+                        basePieceWidth = 140;  // 150 → 200 (+33%)
+                        basePieceHeight = 140;
                         break;
                     case 'hard':
-                        basePieceWidth = 160;  // 120 → 160 (+33%)
-                        basePieceHeight = 160;
+                        basePieceWidth = 120;  // 120 → 160 (+33%)
+                        basePieceHeight = 120;
                         break;
                 }
 
@@ -963,8 +993,8 @@
                     pieceHeight = basePieceHeight * scaleFactor;
 
                     // Ensure minimum touch-friendly size
-                    pieceWidth = Math.max(pieceWidth, 160);
-                    pieceHeight = Math.max(pieceHeight, 160);
+                    pieceWidth = Math.max(pieceWidth, basePieceWidth);
+                    pieceHeight = Math.max(pieceHeight, basePieceHeight);
                 } else {
                     pieceWidth = basePieceWidth;
                     pieceHeight = basePieceHeight;
@@ -976,17 +1006,24 @@
                 // Let CSS flexbox handle container sizing automatically
                 // Remove explicit width/height to allow natural 50/50 split
 
-                // Use consistent gap across all layouts to match CSS
-                const consistentGap = 6;
+                // Use uniform gaps for horizontal and vertical to match CSS
+                const uniformGap = 6;
 
-                // Apply consistent gap to both containers
-                puzzleBoard.style.gap = consistentGap + 'px';
-                piecesArea.style.gap = consistentGap + 'px';
+                // Apply uniform gap to both containers
+                puzzleBoard.style.gap = `${uniformGap}px`;
+                piecesArea.style.gap = `${uniformGap}px`;
 
                 // Update gap calculation for final dimensions
-                const finalGapSize = consistentGap;
-                const finalHorizontalGaps = (config.cols - 1) * finalGapSize;
-                const finalVerticalGaps = (config.rows - 1) * finalGapSize;
+                const finalHorizontalGaps = (config.cols - 1) * uniformGap;
+                const finalVerticalGaps = (config.rows - 1) * uniformGap;
+
+                // Ensure perfect grid alignment - round dimensions to prevent pixel misalignment
+                const alignedPieceWidth = Math.floor(pieceWidth);
+                const alignedPieceHeight = Math.floor(pieceHeight);
+
+                // Update piece dimensions to aligned values
+                pieceWidth = alignedPieceWidth;
+                pieceHeight = alignedPieceHeight;
 
                 // Create slots
                 for (let row = 0; row < config.rows; row++) {
@@ -1382,8 +1419,8 @@
 
             // Check if piece is in correct position
             if (slotIndex === pieceIndex) {
-                piece.style.border = '2px solid #27ae60';
-                piece.style.boxShadow = '0 2px 10px rgba(39, 174, 96, 0.5)';
+                piece.style.border = '5px solid #27ae60';
+                piece.style.boxShadow = '0 4px 20px rgba(39, 174, 96, 0.6)';
                 gameState.score += Math.floor(difficultyConfig[gameState.currentDifficulty].score / gameState.slots.length);
                 updateScore();
 
@@ -1392,9 +1429,13 @@
                     setTimeout(() => completePuzzle(), 500);
                 }
             } else {
-                piece.style.border = '2px solid #e74c3c';
+                piece.style.border = '5px solid #e74c3c';
                 piece.style.opacity = '0.8';
+                piece.style.boxShadow = '0 4px 20px rgba(231, 76, 60, 0.4)';
             }
+
+            // Update restart button state after placing piece
+            updateRestartButton();
         }
 
         // Complete puzzle
@@ -1536,6 +1577,70 @@
             `;
 
             modal.style.display = 'flex';
+        }
+
+        // Check if restart should be available
+        function shouldEnableRestart() {
+            // Always allow restart - user requested unconditional restart
+            return true;
+        }
+
+        // Update restart button state
+        function updateRestartButton() {
+            const restartBtn = document.getElementById('restartBtn');
+            if (restartBtn) {
+                restartBtn.disabled = !shouldEnableRestart();
+            }
+        }
+
+        // Smart restart function
+        function smartRestart() {
+            if (!shouldEnableRestart()) return;
+
+            // Show confirmation modal
+            const modal = document.getElementById('completeModal');
+            const modalTitle = document.querySelector('.modal-title');
+            const modalText = document.getElementById('modalText');
+            const modalButtons = document.getElementById('modalButtons');
+
+            modalTitle.textContent = '🔄 Recomeçar Nível?';
+            modalText.innerHTML = `
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <p style="color: #2c3e50; margin-bottom: 10px;">
+                        Todas as peças foram colocadas, mas algumas estão na posição errada.
+                    </p>
+                    <p>Deseja recomeçar este nível?</p>
+                </div>
+            `;
+
+            modalButtons.innerHTML = `
+                <button class="control-btn" onclick="confirmRestart()">Confirmar</button>
+                <button class="control-btn" onclick="closeRestartModal()">Cancelar</button>
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        // Confirm restart
+        function confirmRestart() {
+            document.getElementById('completeModal').style.display = 'none';
+
+            // Store current state to maintain same level
+            const currentDifficulty = gameState.currentDifficulty;
+            const currentImageIndex = gameState.currentImageIndex;
+
+            // Reset only the pieces and slots, not the progress
+            gameState.pieces = [];
+            gameState.slots = [];
+            gameState.completedSlots = 0;
+
+            // Reload the same puzzle
+            loadPuzzle();
+        }
+
+        // Close restart modal
+        function closeRestartModal() {
+            document.getElementById('completeModal').style.display = 'none';
         }
 
         // Play again
