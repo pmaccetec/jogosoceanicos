@@ -259,6 +259,7 @@
             align-items: center;
             justify-items: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            flex: 1; /* Equal share with puzzle-board for 50/50 split */
         }
 
         .puzzle-piece {
@@ -922,15 +923,9 @@
                     availableWidth = containerWidth - 60; // 30px padding each side
                     containerGap = 6; // Consistent gap size
                 } else {
-                    // Desktop: adjust for easy difficulty with larger pieces
+                    // Desktop: consistent 50/50 split across all difficulties
                     containerGap = 6; // Use consistent 6px gap to match CSS
-
-                    if (gameState.currentDifficulty === 'easy') {
-                        // For easy difficulty with large pieces, use more available space
-                        availableWidth = ((containerWidth - containerGap) / 2) - 20; // Reduce padding for larger pieces
-                    } else {
-                        availableWidth = ((containerWidth - containerGap) / 2) - 33; // Perfect 50% split with precise padding
-                    }
+                    availableWidth = ((containerWidth - containerGap) / 2) - 20; // Consistent padding for all difficulties
                 }
 
                 // Base piece sizes by difficulty - easy mode 4x larger for better gameplay
@@ -975,53 +970,11 @@
                     pieceHeight = basePieceHeight;
                 }
 
-                // Calculate dynamic board dimensions
-                const boardWidth = (pieceWidth * config.cols) + totalHorizontalGaps + padding;
-                const boardHeight = (pieceHeight * config.rows) + totalVerticalGaps + padding;
+                // CSS flexbox now handles container sizing automatically
+                // We only need to calculate piece dimensions based on available space
 
-                // Ensure dimensions don't exceed available space
-                let heightMultiplier;
-                if (isMobileLayout) {
-                    heightMultiplier = 0.75; // Use more height on mobile
-                } else {
-                    // Use more height for easy difficulty with large pieces
-                    heightMultiplier = gameState.currentDifficulty === 'easy' ? 0.85 : 0.6;
-                }
-                const maxHeight = viewportHeight * heightMultiplier;
-
-                // Calculate final dimensions
-                let finalBoardHeight = Math.min(boardHeight, maxHeight);
-                let finalBoardWidth = Math.min(boardWidth, availableWidth);
-
-                // Mobile: ensure minimum space for controls
-                if (isMobileLayout) {
-                    const availableGameHeight = viewportHeight - 250; // More accurate space for header and controls
-                    finalBoardHeight = Math.min(finalBoardHeight, availableGameHeight);
-
-                    // Ensure board height is not too small for touch interaction
-                    const minBoardHeight = Math.min(180, viewportHeight * 0.3);
-                    finalBoardHeight = Math.max(finalBoardHeight, minBoardHeight);
-                }
-
-                // Desktop: ensure proper dimensions for horizontal layout
-                else {
-                    // Use maximum allowed height but ensure reasonable proportions
-                    // Much higher limit for easy difficulty to accommodate 4x larger pieces
-                    const maxDesktopHeight = gameState.currentDifficulty === 'easy' ? 2000 : 600;
-                    finalBoardHeight = Math.min(finalBoardHeight, maxDesktopHeight);
-
-                    // Ensure minimum width for proper piece sizing
-                    const minBoardWidth = gameState.currentDifficulty === 'easy' ? 800 : 300;
-                    finalBoardWidth = Math.max(finalBoardWidth, minBoardWidth);
-                }
-
-                // Set board size dynamically
-                puzzleBoard.style.width = finalBoardWidth + 'px';
-                puzzleBoard.style.height = finalBoardHeight + 'px';
-
-                // Apply same dimensions to pieces area for perfect correspondence
-                piecesArea.style.width = finalBoardWidth + 'px';
-                piecesArea.style.height = finalBoardHeight + 'px';
+                // Let CSS flexbox handle container sizing automatically
+                // Remove explicit width/height to allow natural 50/50 split
 
                 // Use consistent gap across all layouts to match CSS
                 const consistentGap = 6;
