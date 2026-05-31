@@ -292,6 +292,7 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.4);
             background: white;
             margin: 0 auto;
+            touch-action: none;
         }
 
         .puzzle-piece:hover {
@@ -1356,6 +1357,10 @@
                 this.touchMoveRAF = null;
             }
 
+            // Always restore original piece visual state
+            touchItem.style.opacity = '';
+            touchItem.style.transform = '';
+
             const touch = e.changedTouches[0];
             const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
             const slot = elementBelow?.closest('.puzzle-slot');
@@ -1371,12 +1376,11 @@
             } else {
                 // Animate original piece back to place with transition
                 touchItem.style.transition = 'all 0.3s ease';
-                touchItem.style.opacity = '';
-                touchItem.style.transform = '';
 
                 // Remove transition after animation
+                const piece = touchItem;
                 setTimeout(() => {
-                    if (touchItem) touchItem.style.transition = '';
+                    if (piece) piece.style.transition = '';
                 }, 300);
             }
 
@@ -1404,23 +1408,32 @@
             piece.style.display = 'block';
             piece.style.margin = '0';
 
+            // Restore previous slot if piece was already placed
+            const prevSlot = piece.closest('.puzzle-slot');
+            if (prevSlot) {
+                prevSlot.classList.remove('filled');
+                prevSlot.style.background = '';
+                prevSlot.style.border = '';
+                // Re-show background guide if available
+                const guideCanvas = prevSlot.querySelector('canvas');
+                if (guideCanvas) guideCanvas.style.display = '';
+            }
+
             slot.appendChild(piece);
             slot.classList.add('filled');
             slot.style.background = 'transparent';
             slot.style.border = 'none';
-            piece.draggable = false;
-
-            // Remove touch event listeners
-            piece.removeEventListener('touchstart', handleTouchStart);
-            piece.removeEventListener('touchmove', handleTouchMove);
-            piece.removeEventListener('touchend', handleTouchEnd);
-
-            gameState.completedSlots++;
 
             // Check if piece is in correct position
             if (slotIndex === pieceIndex) {
                 piece.style.border = '5px solid #27ae60';
                 piece.style.boxShadow = '0 4px 20px rgba(39, 174, 96, 0.6)';
+                piece.draggable = false;
+                piece.removeEventListener('touchstart', handleTouchStart);
+                piece.removeEventListener('touchmove', handleTouchMove);
+                piece.removeEventListener('touchend', handleTouchEnd);
+
+                gameState.completedSlots++;
                 gameState.score += Math.floor(difficultyConfig[gameState.currentDifficulty].score / gameState.slots.length);
                 updateScore();
 
@@ -1429,9 +1442,13 @@
                     setTimeout(() => completePuzzle(), 500);
                 }
             } else {
+                // Wrong position — keep piece interactive so user can move it again
                 piece.style.border = '5px solid #e74c3c';
                 piece.style.opacity = '0.8';
                 piece.style.boxShadow = '0 4px 20px rgba(231, 76, 60, 0.4)';
+                piece.draggable = true;
+                // Restore visual state
+                piece.style.transition = '';
             }
 
             // Update restart button state after placing piece
