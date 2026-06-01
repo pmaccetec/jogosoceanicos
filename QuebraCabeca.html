@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Quebra-cabeça do Oceano - Arraial do Cabo</title>
 
-    <!-- Favicon inline SVG -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🧩</text></svg>">
 
     <style>
@@ -17,7 +16,7 @@
 
         html, body {
             height: 100%;
-            overflow-x: hidden; /* Allow vertical scrolling when needed */
+            overflow-x: hidden;
         }
 
         body {
@@ -30,7 +29,6 @@
             min-height: 100vh;
         }
 
-        /* Bolhas de fundo animadas */
         .bubble {
             position: absolute;
             bottom: -100px;
@@ -50,15 +48,13 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 800px;
             margin: 0 auto;
             position: relative;
             z-index: 1;
             width: 100%;
             display: flex;
             flex-direction: column;
-            height: 100%;
-            overflow: hidden;
         }
 
         header {
@@ -81,14 +77,8 @@
         }
 
         @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-30px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
         .game-info {
@@ -121,11 +111,6 @@
             box-shadow: 0 2px 8px rgba(0,131,143,0.3);
         }
 
-        /* Hide game control buttons on difficulty selection screen */
-        #menuScreen ~ .game-info .top-btn {
-            display: none;
-        }
-
         .top-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,188,212,0.4);
@@ -138,12 +123,6 @@
             transform: none;
             box-shadow: none;
             opacity: 0.6;
-        }
-
-        .top-btn:disabled:hover {
-            transform: none;
-            box-shadow: none;
-            background: #bdc3c7;
         }
 
         .score {
@@ -220,17 +199,9 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
 
-        .difficulty-btn.easy {
-            background: linear-gradient(135deg, #27ae60, #229954);
-        }
-
-        .difficulty-btn.medium {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
-        }
-
-        .difficulty-btn.hard {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-        }
+        .difficulty-btn.easy   { background: linear-gradient(135deg, #27ae60, #229954); }
+        .difficulty-btn.medium { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .difficulty-btn.hard   { background: linear-gradient(135deg, #e74c3c, #c0392b); }
 
         .game-screen {
             display: none;
@@ -241,17 +212,13 @@
         .puzzle-container {
             flex: 1;
             display: flex;
-            gap: 6px; /* Consistent gap size */
+            flex-direction: column;
+            gap: 12px;
             margin-bottom: 15px;
-            min-height: 250px; /* Allow JavaScript to control exact height */
+            min-height: 500px;
             align-items: stretch;
-            overflow: hidden; /* Prevent content overflow */
+            overflow: hidden;
         }
-
-        /* Difficulty-specific max-height */
-        .puzzle-container.easy { max-height: 38vh; }
-        .puzzle-container.medium { max-height: 50vh; }
-        .puzzle-container.hard { max-height: 58vh; }
 
         .puzzle-board {
             flex: 1;
@@ -261,12 +228,12 @@
             border-radius: 15px;
             display: grid;
             padding: 10px;
-            margin: 0 auto;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            gap: 6px 6px;
+            gap: 6px;
             align-items: stretch;
             justify-items: stretch;
-            overflow: hidden; /* Prevent pieces from escaping */
+            margin: 5px auto;
+            overflow: hidden;
         }
 
         .pieces-area {
@@ -274,32 +241,36 @@
             border: 2px solid #3498db;
             border-radius: 15px;
             padding: 10px;
-            overflow: hidden;
             display: grid;
-            gap: 6px 6px;
+            gap: 6px;
             align-items: stretch;
             justify-items: stretch;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            flex: 1; /* Equal share with puzzle-board for 50/50 split */
+            flex: 1;
+            margin: 5px auto;
+            overflow: hidden;
         }
+
+        /* --- Piece / slot / ghost styles --- */
 
         .puzzle-piece {
             position: relative;
             cursor: grab;
-            transition: all 0.3s ease;
+            transition: opacity 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
             border: 3px solid #2c3e50;
             border-radius: 6px;
             box-shadow: 0 6px 20px rgba(0,0,0,0.4);
             background: white;
             margin: 0 auto;
+            /* CRITICAL: prevent browser scroll/zoom while dragging */
             touch-action: none;
         }
 
         .puzzle-piece:hover {
-            transform: scale(1.03);
+            transform: scale(1.02);
             z-index: 10;
             border-color: #3498db;
-            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
         }
 
         .puzzle-piece.dragging {
@@ -312,38 +283,47 @@
             transition: none;
         }
 
+        .puzzle-piece.correct {
+            border: 3px solid #27ae60;
+            box-shadow: inset 0 0 8px rgba(39, 174, 96, 0.4);
+            cursor: default;
+        }
+
+        .puzzle-piece.wrong {
+            border: 3px solid #e74c3c;
+            box-shadow: inset 0 0 8px rgba(231, 76, 60, 0.3);
+            opacity: 0.85;
+        }
+
         .puzzle-slot {
             background: #f8f9fa;
             border: 2px dashed #6c757d;
             border-radius: 8px;
             position: relative;
-            transition: all 0.3s ease;
+            transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
         .puzzle-slot::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3));
             border-radius: 6px;
             pointer-events: none;
         }
 
         .puzzle-slot:hover {
-            background: #e9ecef;
-            border-color: #3498db;
-            border-style: solid;
-            transform: scale(1.02);
+            /* No visual change on hover — slots only highlight during drag */
         }
 
         .puzzle-slot.drag-over {
-            background: #d1ecf1;
+            background-color: #d1ecf1;
             border-color: #0c5460;
             border-style: solid;
             transform: scale(1.05);
@@ -352,11 +332,27 @@
 
         .puzzle-slot.filled {
             border: none;
-            background: transparent;
+            background-color: transparent;
+            padding: 0;
         }
 
         .puzzle-slot.filled::before {
             display: none;
+        }
+
+        /* Lightweight ghost used during touch drag */
+        .touch-ghost {
+            position: fixed;
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0.9;
+            border: 3px solid #e74c3c;
+            border-radius: 6px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: none;
         }
 
         .controls {
@@ -388,10 +384,8 @@
         .complete-modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.8);
             z-index: 2000;
             justify-content: center;
@@ -408,40 +402,18 @@
         }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            from { opacity: 0; transform: scale(0.8); }
+            to   { opacity: 1; transform: scale(1); }
         }
 
-        .modal-title {
-            font-size: 2em;
-            color: #27ae60;
-            margin-bottom: 20px;
-        }
+        .modal-title { font-size: 2em; color: #27ae60; margin-bottom: 20px; }
+        .modal-text  { font-size: 1.1em; color: #2c3e50; margin-bottom: 30px; line-height: 1.6; }
+        .modal-buttons { display: flex; gap: 15px; justify-content: center; }
 
-        .modal-text {
-            font-size: 1.1em;
-            color: #2c3e50;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
+        /* ==================== RESPONSIVE ==================== */
 
-        .modal-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-        }
-
-        /* Responsive Design */
         @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.5em;
-            }
+            header h1 { font-size: 1.5em; }
 
             .puzzle-container {
                 flex-direction: column;
@@ -459,18 +431,17 @@
             }
 
             .pieces-area {
+                flex: none;
                 width: 100%;
                 max-width: none;
-                min-height: 100px;
-                overflow: hidden;
+                min-height: 140px;
                 padding: 12px;
                 gap: 4px;
                 justify-self: center;
             }
 
             .puzzle-piece {
-                max-width: 200px; /* Increased from 110px for better mobile experience */
-                max-height: 200px;
+                max-width: none;
                 border-width: 2px;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             }
@@ -478,7 +449,7 @@
             .game-info {
                 flex-direction: column;
                 gap: 10px;
-                align-items: center; /* Center align on mobile */
+                align-items: center;
             }
 
             .top-controls {
@@ -488,7 +459,7 @@
             }
 
             .top-btn {
-                min-height: 44px; /* Touch-friendly */
+                min-height: 44px;
                 font-size: 0.85em;
                 padding: 10px 14px;
             }
@@ -505,33 +476,15 @@
                 font-size: 1.1em;
             }
 
-            .controls {
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-
-            .control-btn {
-                font-size: 0.9em;
-                padding: 10px 18px;
-            }
+            .controls { flex-wrap: wrap; gap: 10px; }
+            .control-btn { font-size: 0.9em; padding: 10px 18px; }
         }
 
         @media (max-width: 480px) {
-            body {
-                padding: 5px;
-            }
-
-            header h1 {
-                font-size: 1.3em;
-            }
-
-            header p {
-                font-size: 0.9em;
-            }
-
-            .game-area {
-                padding: 10px;
-            }
+            body { padding: 5px; }
+            header h1 { font-size: 1.3em; }
+            header p  { font-size: 0.9em; }
+            .game-area { padding: 10px; }
 
             .puzzle-board {
                 width: 100%;
@@ -542,97 +495,41 @@
             }
 
             .pieces-area {
+                flex: none;
                 width: 100%;
                 max-width: none;
-                min-height: 80px;
-                overflow: hidden;
+                min-height: 120px;
                 padding: 10px;
                 gap: 3px;
                 justify-self: center;
             }
 
             .puzzle-piece {
-                max-width: 160px; /* Increased from 90px for better mobile experience */
-                max-height: 160px;
+                max-width: none;
                 border-width: 2px;
                 box-shadow: 0 3px 12px rgba(0,0,0,0.25);
             }
 
-            .modal-content {
-                padding: 20px;
-                margin: 20px;
-            }
-
-            .controls {
-                flex-direction: column;
-            }
-
-            .control-btn {
-                width: 100%;
-                padding: 12px 20px;
-            }
-
-            .menu-title {
-                font-size: 2em;
-            }
-
-            .difficulty-btn {
-                padding: 15px 20px;
-                font-size: 1em;
-            }
+            .modal-content { padding: 20px; margin: 20px; }
+            .controls { flex-direction: column; }
+            .control-btn { width: 100%; padding: 12px 20px; }
+            .menu-title { font-size: 2em; }
+            .difficulty-btn { padding: 15px 20px; font-size: 1em; }
         }
 
-        /* Large screens - optimize layout */
         @media (min-width: 1200px) {
-            .puzzle-container {
-                max-width: 1400px; /* Increased for larger puzzle pieces */
-                margin: 0 auto;
-                max-height: 58vh; /* More compact height for better layout */
-                overflow: hidden; /* Ensure contents stay within bounds */
-            }
-
-            .puzzle-board {
-                flex: 1; /* Equal flex distribution */
-                min-width: 0; /* Allow shrinking */
-                overflow: hidden; /* Prevent pieces from escaping */
-            }
-
-            .pieces-area {
-                flex: 1; /* Equal flex distribution */
-                min-width: 0; /* Allow shrinking */
-                overflow: hidden; /* Prevent pieces from escaping */
-            }
+            header h1 { font-size: 1.6em; }
 
             .puzzle-piece {
                 box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-            }
-
-            /* Difficulty-specific max-height for large screens */
-            .puzzle-container.easy { max-height: 38vh; }
-            .puzzle-container.medium { max-height: 50vh; }
-            .puzzle-container.hard { max-height: 58vh; }
-        }
-
-        /* Responsive gap for desktop */
-        @media (max-width: 900px) {
-            .puzzle-container {
-                gap: 6px; /* Consistent gap size */
+                border-radius: 4px;
             }
         }
 
-        /* Extra small mobile improvements */
         @media (max-width: 360px) {
-            .container {
-                padding: 5px;
-            }
-
-            header h1 {
-                font-size: 1.2em;
-            }
-
-            header p {
-                font-size: 0.8em;
-            }
+            .container { padding: 5px; }
+            header h1 { font-size: 1.2em; }
+            header p  { font-size: 0.8em; }
 
             .game-info {
                 flex-direction: column;
@@ -641,101 +538,37 @@
                 align-items: center;
             }
 
-            .score {
-                font-size: 0.9em;
-            }
-
-            .top-controls {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .top-btn {
-                min-height: 44px;
-                font-size: 0.8em;
-                padding: 8px 12px;
-            }
-
-            .back-button {
-                padding: 10px 15px;
-                font-size: 0.9em;
-                min-height: 44px; /* Touch-friendly minimum */
-            }
-
-            .difficulty-btn {
-                min-height: 44px; /* Touch-friendly minimum */
-                padding: 20px 15px;
-                font-size: 1em;
-            }
-
-            .control-btn {
-                min-height: 44px; /* Touch-friendly minimum */
-                padding: 15px 20px;
-                font-size: 0.9em;
-                margin: 5px 0;
-            }
-
-            .puzzle-container {
-                gap: 15px;
-            }
-
-            .puzzle-board, .pieces-area {
-                padding: 8px;
-                gap: 2px;
-            }
-
-            .modal-content {
-                padding: 15px;
-                margin: 10px;
-                max-width: 95%;
-            }
-
-            .modal-title {
-                font-size: 1.5em;
-            }
-
-            .modal-text {
-                font-size: 0.9em;
-            }
+            .score { font-size: 0.9em; }
+            .top-controls { flex-wrap: wrap; justify-content: center; }
+            .top-btn { min-height: 44px; font-size: 0.8em; padding: 8px 12px; }
+            .back-button { padding: 10px 15px; font-size: 0.9em; min-height: 44px; }
+            .difficulty-btn { min-height: 44px; padding: 20px 15px; font-size: 1em; }
+            .control-btn { min-height: 44px; padding: 15px 20px; font-size: 0.9em; margin: 5px 0; }
+            .puzzle-container { gap: 15px; }
+            .puzzle-board, .pieces-area { padding: 8px; gap: 2px; }
+            .modal-content { padding: 15px; margin: 10px; max-width: 95%; }
+            .modal-title { font-size: 1.5em; }
+            .modal-text  { font-size: 0.9em; }
         }
 
-        /* Touch-friendly improvements for all mobile devices */
         @media (hover: none) and (pointer: coarse) {
-            .puzzle-piece {
-                min-width: 44px;
-                min-height: 44px;
-            }
-
-            .puzzle-slot {
-                min-width: 44px;
-                min-height: 44px;
-            }
-
+            .puzzle-piece { min-width: 44px; min-height: 44px; }
+            .puzzle-slot  { min-width: 44px; min-height: 44px; }
             .control-btn, .difficulty-btn, .back-button {
                 min-height: 44px;
-                font-size: 16px; /* Prevent iOS zoom */
-            }
-
-            /* Improve touch feedback */
-            .puzzle-piece:hover {
-                transform: scale(1.05);
-            }
-
-            .puzzle-slot:hover {
-                transform: scale(1.02);
+                font-size: 16px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Animated bubbles background -->
-    <div class="bubble" style="width: 60px; height: 60px; left: 10%; animation-delay: 0s;"></div>
-    <div class="bubble" style="width: 40px; height: 40px; left: 25%; animation-delay: 3s;"></div>
-    <div class="bubble" style="width: 80px; height: 80px; left: 50%; animation-delay: 6s;"></div>
-    <div class="bubble" style="width: 50px; height: 50px; left: 70%; animation-delay: 2s;"></div>
-    <div class="bubble" style="width: 70px; height: 70px; left: 85%; animation-delay: 5s;"></div>
-    <div class="bubble" style="width: 45px; height: 45px; left: 15%; animation-delay: 8s;"></div>
-    <div class="bubble" style="width: 65px; height: 65px; left: 90%; animation-delay: 1s;"></div>
+    <div class="bubble" style="width:60px;height:60px;left:10%;animation-delay:0s"></div>
+    <div class="bubble" style="width:40px;height:40px;left:25%;animation-delay:3s"></div>
+    <div class="bubble" style="width:80px;height:80px;left:50%;animation-delay:6s"></div>
+    <div class="bubble" style="width:50px;height:50px;left:70%;animation-delay:2s"></div>
+    <div class="bubble" style="width:70px;height:70px;left:85%;animation-delay:5s"></div>
+    <div class="bubble" style="width:45px;height:45px;left:15%;animation-delay:8s"></div>
+    <div class="bubble" style="width:65px;height:65px;left:90%;animation-delay:1s"></div>
 
     <div class="container">
         <header>
@@ -744,36 +577,25 @@
         </header>
 
         <div class="game-info">
-<!--            <div class="score">Pontos: <span id="score">0</span></div>-->
             <div class="top-controls">
-<!--                <button class="top-btn" onclick="showHint()">💡 Dica</button>-->
-<!--                <button class="top-btn" onclick="shufflePieces()">🔀 Embaralhar</button>-->
                 <button class="back-button" onclick="backToMenu()">← Voltar</button>
             </div>
         </div>
 
         <div class="game-area">
-            <!-- Menu de seleção de dificuldade -->
             <div class="menu-screen" id="menuScreen">
                 <div class="menu-title">🌊 Escolha a Dificuldade</div>
                 <div class="difficulty-buttons">
-                    <button class="difficulty-btn easy" onclick="startGame('easy')">
-                        🟢 Fácil<br>6 peças
-                    </button>
-                    <button class="difficulty-btn medium" onclick="startGame('medium')">
-                        🟡 Médio<br>9 peças
-                    </button>
-                    <button class="difficulty-btn hard" onclick="startGame('hard')">
-                        🔴 Difícil<br>16 peças
-                    </button>
+                    <button class="difficulty-btn easy" onclick="startGame('easy')">🟢 Fácil<br>6 peças</button>
+                    <button class="difficulty-btn medium" onclick="startGame('medium')">🟡 Médio<br>9 peças</button>
+                    <button class="difficulty-btn hard" onclick="startGame('hard')">🔴 Difícil<br>16 peças</button>
                 </div>
-                <p style="color: #2c3e50; margin-top: 20px; text-align: center; max-width: 400px;">
+                <p style="color:#2c3e50;margin-top:20px;text-align:center;max-width:400px">
                     Arraste e solte as peças para montar as imagens dos ecossistemas marinhos.
                     Descubra a diferença entre oceanos saudáveis e degradados!
                 </p>
             </div>
 
-            <!-- Área do jogo -->
             <div class="game-screen" id="gameScreen">
                 <div class="game-info">
                     <div class="score">Pontos: <span id="score">0</span></div>
@@ -784,15 +606,13 @@
                     </div>
                 </div>
                 <div class="puzzle-container">
-                    <div class="pieces-area" id="piecesArea"></div>
                     <div class="puzzle-board" id="puzzleBoard"></div>
+                    <div class="pieces-area" id="piecesArea"></div>
                 </div>
-                <!-- Comparar button removed - healthy/degraded are sequential -->
             </div>
         </div>
     </div>
 
-    <!-- Modal de conclusão -->
     <div class="complete-modal" id="completeModal">
         <div class="modal-content">
             <div class="modal-title">🎉 Parabéns!</div>
@@ -807,93 +627,73 @@
     </div>
 
     <script>
-        // Game state
-        let gameState = {
+        /* ===================================================================
+         *  GAME STATE
+         * =================================================================== */
+        const gameState = {
             currentDifficulty: null,
             currentImageIndex: 0,
             score: 0,
             isGameComplete: false,
             pieces: [],
-            slots: [],
+            slots: [],          // cached array populated by loadPuzzle
             completedSlots: 0,
-            draggedPiece: null
+            draggedPiece: null   // for HTML5 drag & drop
         };
 
-        // Sequential image data - exact requested order
+        /* ===================================================================
+         *  IMAGE DATA
+         * =================================================================== */
         const imageSequence = [
-            { src: 'img/01-healthy.png', type: 'healthy', ecosystem: 'Recife de Coral',
+            { src: 'img/01-healthy.png',  type: 'healthy',  ecosystem: 'Recife de Coral',
               title: 'Ecossistema Saudável!',
               text: 'Este é um oceano saudável de Arraial do Cabo! Os corais estão vibrantes, os peixes nadam livremente e a água está limpa. A biodiversidade marinha é essencial para o equilíbrio do nosso planeta.' },
-
             { src: 'img/01-degraded.png', type: 'degraded', ecosystem: 'Recife de Coral',
               title: 'Ecossistema Ameaçado!',
               text: 'Este ecossistema sofre com a poluição humana. O lixo plástico, o branqueamento de corais e a pesca excessiva ameaçam a vida marinha. Precisamos agir agora para proteger nossos oceanos!' },
-
-            { src: 'img/02-healthy.png', type: 'healthy', ecosystem: 'Vida Marinha',
+            { src: 'img/02-healthy.png',  type: 'healthy',  ecosystem: 'Vida Marinha',
               title: 'Ecossistema Saudável!',
               text: 'A vida marinha saudável mostra o equilíbrio perfeito da natureza. Peixes coloridos, águas cristalinas e corais vibrantes formam um dos ecossistemas mais ricos do planeta!' },
-
             { src: 'img/02-degraded.png', type: 'degraded', ecosystem: 'Vida Marinha',
               title: 'Ecossistema Ameaçado!',
               text: 'A poluição ameaça a vida marinha! O lixo plástico sufoca os animais, a pesca predatória desequilibra a cadeia alimentar e a contaminação química destrói os habitats naturais.' },
-
-            { src: 'img/03-healthy.png', type: 'healthy', ecosystem: 'Oceano Aberto',
+            { src: 'img/03-healthy.png',  type: 'healthy',  ecosystem: 'Oceano Aberto',
               title: 'Ecossistema Saudável!',
               text: 'O oceano aberto saudável é o berço da vida! Suas águas azuis e puras sustentam gigantes gentis como as baleias, e milhares de espécies que mantêm nosso planeta vivo.' },
-
             { src: 'img/03-degraded.png', type: 'degraded', ecosystem: 'Oceano Aberto',
               title: 'Ecossistema Ameaçado!',
               text: 'O oceano aberto está em perigo! Derramamentos de óleo, plásticos microscópicos e a acidificação dos oceanos ameaçam eliminar espécies inteiras e desequilibrar o clima global!' }
         ];
 
-        // Helper function to generate image sequence (for future extensibility)
-        function generateImageSequence() {
-            const ecosystems = [
-                { id: 1, name: 'Recife de Coral' },
-                { id: 2, name: 'Vida Marinha' },
-                { id: 3, name: 'Oceano Aberto' }
-                // Add more ecosystems here in the future (4, 5, etc.)
-            ];
-
-            const sequence = [];
-            ecosystems.forEach(eco => {
-                sequence.push({
-                    src: `img/0${eco.id}-healthy.png`,
-                    type: 'healthy',
-                    ecosystem: eco.name,
-                    title: 'Ecossistema Saudável!',
-                    text: `Este é um oceano saudável de Arraial do Cabo! Os corais estão vibrantes, os peixes nadam livremente e a água está limpa. A biodiversidade marinha é essencial para o equilíbrio do nosso planeta.`
-                });
-                sequence.push({
-                    src: `img/0${eco.id}-degraded.png`,
-                    type: 'degraded',
-                    ecosystem: eco.name,
-                    title: 'Ecossistema Ameaçado!',
-                    text: 'Este ecossistema sofre com a poluição humana. O lixo plástico, o branqueamento de corais e a pesca excessiva ameaçam a vida marinha. Precisamos agir agora para proteger nossos oceanos!'
-                });
-            });
-            return sequence;
-        }
-
-        // Difficulty configurations
         const difficultyConfig = {
-            easy: { rows: 2, cols: 3, score: 100 },
+            easy:   { rows: 2, cols: 3, score: 100 },
             medium: { rows: 3, cols: 3, score: 200 },
-            hard: { rows: 4, cols: 4, score: 300 }
+            hard:   { rows: 4, cols: 4, score: 300 }
         };
 
-        // Initialize game
+        /* ===================================================================
+         *  TOUCH DRAG STATE
+         * =================================================================== */
+        let touchPiece   = null;   // the actual canvas element being dragged
+        let touchGhost   = null;   // lightweight floating div
+        let touchOffsetX = 0;
+        let touchOffsetY = 0;
+        let touchActive  = false;
+        let touchRAF     = null;
+        let lastHighlightedSlot = null;
+
+        /* ===================================================================
+         *  GAME FLOW
+         * =================================================================== */
         function initGame() {
             updateScore();
         }
 
-        // Start game with selected difficulty
         function startGame(difficulty) {
             gameState.currentDifficulty = difficulty;
             gameState.currentImageIndex = 0;
             gameState.isGameComplete = false;
 
-            // Apply difficulty-specific class to container
             const container = document.querySelector('.puzzle-container');
             container.className = container.className.replace(/easy|medium|hard/g, '').trim() + ' ' + difficulty;
 
@@ -903,657 +703,513 @@
             loadPuzzle();
         }
 
-        // Load puzzle
         function loadPuzzle() {
             const config = difficultyConfig[gameState.currentDifficulty];
-            const currentImageData = imageSequence[gameState.currentImageIndex];
-            const imagePath = currentImageData.src;
+            const imageData = imageSequence[gameState.currentImageIndex];
 
             gameState.pieces = [];
             gameState.slots = [];
             gameState.completedSlots = 0;
 
             const puzzleBoard = document.getElementById('puzzleBoard');
-            const piecesArea = document.getElementById('piecesArea');
-
-            // Clear previous content
+            const piecesArea  = document.getElementById('piecesArea');
             puzzleBoard.innerHTML = '';
-            piecesArea.innerHTML = '';
+            piecesArea.innerHTML  = '';
 
-            // Set grid layout for both areas
-            puzzleBoard.style.gridTemplateColumns = `repeat(${config.cols}, 1fr)`;
-            puzzleBoard.style.gridTemplateRows = `repeat(${config.rows}, 1fr)`;
+            puzzleBoard.style.gridTemplateColumns = `repeat(${config.cols}, auto)`;
+            puzzleBoard.style.gridTemplateRows    = `repeat(${config.rows}, auto)`;
 
-            piecesArea.style.gridTemplateColumns = `repeat(${config.cols}, 1fr)`;
-            piecesArea.style.gridTemplateRows = `repeat(${config.rows}, 1fr)`;
+            // Pieces area: grid on both mobile and desktop (matching board layout)
+            piecesArea.style.gridTemplateColumns = `repeat(${config.cols}, auto)`;
+            piecesArea.style.gridTemplateRows    = `repeat(${config.rows}, auto)`;
 
-            // Create image for reference and sizing
             const img = new Image();
-            img.onload = function() {
-                const gapSize = 6;
-                const padding = 30; // 15px cada lado
-                const totalHorizontalGaps = (config.cols - 1) * gapSize;
-                const totalVerticalGaps = (config.rows - 1) * gapSize;
-
-                // Responsive piece sizing based on viewport and difficulty
-                const viewportWidth = window.innerWidth;
-                const viewportHeight = window.innerHeight;
-                const container = document.querySelector('.puzzle-container');
-                const containerWidth = container ? container.offsetWidth : viewportWidth - 60;
-
-                // Detect layout mode (mobile vs desktop) - simplified and reliable
-                const isMobileLayout = viewportWidth <= 768;
-                const isVerticalLayout = isMobileLayout; // Mobile is always vertical layout
-
-                // Calculate available space based on layout mode
-                let availableWidth;
-                let containerGap;
-
-                if (isMobileLayout) {
-                    // Mobile vertical layout: use full container width minus padding
-                    availableWidth = containerWidth - 60; // 30px padding each side
-                    containerGap = 6; // Consistent gap size
-                } else {
-                    // Desktop: consistent 50/50 split across all difficulties
-                    containerGap = 6; // Use consistent 6px gap to match CSS
-                    availableWidth = ((containerWidth - containerGap) / 2) - 20; // Consistent padding for all difficulties
-                }
-
-                // Base piece sizes by difficulty - easy mode 4x larger for better gameplay
-                let basePieceWidth, basePieceHeight;
-                switch (gameState.currentDifficulty) {
-                    case 'easy':
-                        basePieceWidth = 160;  // 240 → 960 (4x larger)
-                        basePieceHeight = 160;
-                        break;
-                    case 'medium':
-                        basePieceWidth = 140;  // 150 → 200 (+33%)
-                        basePieceHeight = 140;
-                        break;
-                    case 'hard':
-                        basePieceWidth = 120;  // 120 → 160 (+33%)
-                        basePieceHeight = 120;
-                        break;
-                }
-
-                // Calculate required width based on base piece size using consistent gap
-                const requiredWidth = (basePieceWidth * config.cols) + ((config.cols - 1) * gapSize) + padding;
-
-                // Apply responsive scaling if needed
-                let pieceWidth, pieceHeight;
-                if (requiredWidth > availableWidth) {
-                    // Scale down to fit available space with precise calculation
-                    let scaleFactor = availableWidth / requiredWidth;
-
-                    // Additional scaling for easy difficulty with very large pieces
-                    if (gameState.currentDifficulty === 'easy') {
-                        scaleFactor = Math.min(scaleFactor, 0.8); // Limit scaling to prevent pieces from being too small
-                    }
-
-                    pieceWidth = basePieceWidth * scaleFactor;
-                    pieceHeight = basePieceHeight * scaleFactor;
-
-                    // Ensure minimum touch-friendly size
-                    pieceWidth = Math.max(pieceWidth, basePieceWidth);
-                    pieceHeight = Math.max(pieceHeight, basePieceHeight);
-                } else {
-                    pieceWidth = basePieceWidth;
-                    pieceHeight = basePieceHeight;
-                }
-
-                // CSS flexbox now handles container sizing automatically
-                // We only need to calculate piece dimensions based on available space
-
-                // Let CSS flexbox handle container sizing automatically
-                // Remove explicit width/height to allow natural 50/50 split
-
-                // Use uniform gaps for horizontal and vertical to match CSS
-                const uniformGap = 6;
-
-                // Apply uniform gap to both containers
-                puzzleBoard.style.gap = `${uniformGap}px`;
-                piecesArea.style.gap = `${uniformGap}px`;
-
-                // Update gap calculation for final dimensions
-                const finalHorizontalGaps = (config.cols - 1) * uniformGap;
-                const finalVerticalGaps = (config.rows - 1) * uniformGap;
-
-                // Ensure perfect grid alignment - round dimensions to prevent pixel misalignment
-                const alignedPieceWidth = Math.floor(pieceWidth);
-                const alignedPieceHeight = Math.floor(pieceHeight);
-
-                // Update piece dimensions to aligned values
-                pieceWidth = alignedPieceWidth;
-                pieceHeight = alignedPieceHeight;
-
-                // Create slots
-                for (let row = 0; row < config.rows; row++) {
-                    for (let col = 0; col < config.cols; col++) {
-                        const slot = createSlot(row, col, pieceWidth, pieceHeight, config);
-                        puzzleBoard.appendChild(slot);
-                        gameState.slots.push(slot);
-                    }
-                }
-
-                // Create pieces
-                const pieceIndices = [];
-                for (let row = 0; row < config.rows; row++) {
-                    for (let col = 0; col < config.cols; col++) {
-                        const index = row * config.cols + col;
-                        pieceIndices.push(index);
-                    }
-                }
-
-                // Create pieces in temporary array first
-                const pieces = [];
-                pieceIndices.forEach((originalIndex, i) => {
-                    const row = Math.floor(originalIndex / config.cols);
-                    const col = originalIndex % config.cols;
-                    const piece = createPiece(img, row, col, originalIndex, pieceWidth, pieceHeight);
-                    pieces.push(piece);
-                    gameState.pieces.push(piece);
+            img.onload = function () {
+                // Wait for layout to be calculated before measuring
+                requestAnimationFrame(function () {
+                    buildPuzzle(img, config);
                 });
-
-                // Shuffle pieces automatically
-                shuffleArray(pieces);
-
-                // Add shuffled pieces to the pieces area
-                pieces.forEach(piece => piecesArea.appendChild(piece));
-
-                // Set up background guides for slots
-                setupBackgroundGuides(img, config);
             };
-            img.onerror = function() {
-                console.error('Error loading image:', imagePath);
+            img.onerror = function () {
                 alert('Erro ao carregar imagem. Por favor, tente novamente.');
             };
-            img.src = imagePath;
+            img.src = imageData.src;
         }
 
-        // Create puzzle slot
+        function buildPuzzle(img, config) {
+            const puzzleBoard = document.getElementById('puzzleBoard');
+            const piecesArea  = document.getElementById('piecesArea');
+
+            const container = document.querySelector('.puzzle-container');
+            const containerWidth = container ? container.offsetWidth : window.innerWidth - 60;
+
+            // Same layout for all screen sizes — stacked, full-width
+            const gapSize = 6;
+            const padding = 30;
+            const availableWidth = containerWidth - 40;
+
+            let pieceWidth, pieceHeight;
+
+            // Use fixed base size, scaled down to fit width
+            let basePieceSize;
+            switch (gameState.currentDifficulty) {
+                case 'easy':   basePieceSize = 320; break;
+                case 'medium': basePieceSize = 260; break;
+                case 'hard':   basePieceSize = 200; break;
+            }
+            const requiredWidth = (basePieceSize * config.cols) + ((config.cols - 1) * gapSize) + padding;
+            if (requiredWidth > availableWidth) {
+                const scale = availableWidth / requiredWidth;
+                pieceWidth  = Math.floor(basePieceSize * scale);
+                pieceHeight = Math.floor(basePieceSize * scale);
+            } else {
+                pieceWidth  = basePieceSize;
+                pieceHeight = basePieceSize;
+            }
+            pieceWidth  = Math.max(pieceWidth, 50);
+            pieceHeight = Math.max(pieceHeight, 50);
+
+            // Apply gap to both containers
+            puzzleBoard.style.gap = `${gapSize}px`;
+            piecesArea.style.gap  = `${gapSize}px`;
+
+            // Create slots
+            for (let row = 0; row < config.rows; row++) {
+                for (let col = 0; col < config.cols; col++) {
+                    const slot = createSlot(row, col, pieceWidth, pieceHeight, config);
+                    puzzleBoard.appendChild(slot);
+                    gameState.slots.push(slot);
+                }
+            }
+
+            // Create pieces
+            const pieces = [];
+            for (let row = 0; row < config.rows; row++) {
+                for (let col = 0; col < config.cols; col++) {
+                    const index = row * config.cols + col;
+                    const piece = createPiece(img, row, col, index, pieceWidth, pieceHeight);
+                    pieces.push(piece);
+                    gameState.pieces.push(piece);
+                }
+            }
+
+            // Shuffle and add to tray
+            shuffleArray(pieces);
+            pieces.forEach(p => piecesArea.appendChild(p));
+
+            // Background guides
+            setupBackgroundGuides(img, config);
+        }
+
+        /* ===================================================================
+         *  SLOT / PIECE CREATION
+         * =================================================================== */
         function createSlot(row, col, width, height, config) {
             const slot = document.createElement('div');
             slot.className = 'puzzle-slot';
-            slot.dataset.row = row;
-            slot.dataset.col = col;
+            slot.dataset.row   = row;
+            slot.dataset.col   = col;
             slot.dataset.index = row * config.cols + col;
-            slot.style.width = width + 'px';
-            slot.style.height = height + 'px';
+            slot.style.width   = width + 'px';
+            slot.style.height  = height + 'px';
 
-            // Store position for background guide
+            // Store guide coordinates for background image
             slot.dataset.guideRow = row;
             slot.dataset.guideCol = col;
 
-            // Add drop event listeners
-            slot.addEventListener('dragover', handleDragOver);
-            slot.addEventListener('drop', handleDrop);
+            // HTML5 drag & drop
+            slot.addEventListener('dragover',  handleDragOver);
+            slot.addEventListener('drop',      handleDrop);
             slot.addEventListener('dragleave', handleDragLeave);
 
             return slot;
         }
 
-        // Optimized setup background guides for slots (performance-focused)
-        function setupBackgroundGuides(img, config) {
-            // Use requestAnimationFrame for better performance on mobile
-            requestAnimationFrame(() => {
-                const sourceWidth = img.width / config.cols;
-                const sourceHeight = img.height / config.rows;
-
-                // Process slots in batches to avoid blocking UI
-                const batchSize = 3; // Process 3 slots at a time
-                let currentBatch = 0;
-
-                function processBatch() {
-                    const startIdx = currentBatch * batchSize;
-                    const endIdx = Math.min(startIdx + batchSize, gameState.slots.length);
-
-                    for (let i = startIdx; i < endIdx; i++) {
-                        const slot = gameState.slots[i];
-                        const row = parseInt(slot.dataset.guideRow);
-                        const col = parseInt(slot.dataset.guideCol);
-                        const slotWidth = parseInt(slot.style.width);
-                        const slotHeight = parseInt(slot.style.height);
-
-                        // Skip if slot dimensions are too small (mobile optimization)
-                        if (slotWidth < 30 || slotHeight < 30) {
-                            continue;
-                        }
-
-                        try {
-                            // Create a canvas for the background guide
-                            const guideCanvas = document.createElement('canvas');
-                            guideCanvas.width = slotWidth;
-                            guideCanvas.height = slotHeight;
-
-                            const ctx = guideCanvas.getContext('2d');
-
-                            // Use lower quality on mobile for better performance
-                            const isMobile = window.innerWidth <= 768;
-                            if (isMobile) {
-                                ctx.imageSmoothingEnabled = false;
-                            }
-
-                            // Draw the corresponding piece section
-                            const sourceX = col * sourceWidth;
-                            const sourceY = row * sourceHeight;
-
-                            ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, slotWidth, slotHeight);
-
-                            // Apply filter for translucency
-                            ctx.globalAlpha = 0.35;
-                            ctx.fillStyle = '#f8f9fa';
-                            ctx.fillRect(0, 0, slotWidth, slotHeight);
-
-                            // Set as background image
-                            slot.style.backgroundImage = `url(${guideCanvas.toDataURL('image/jpeg', 0.8)})`;
-                            slot.style.backgroundSize = 'cover';
-                            slot.style.backgroundPosition = 'center';
-                            slot.style.backgroundRepeat = 'no-repeat';
-
-                        } catch (error) {
-                            console.warn('Error creating background guide for slot', error);
-                            // Continue processing other slots even if one fails
-                        }
-                    }
-
-                    currentBatch++;
-
-                    // Process next batch if there are more slots
-                    if (currentBatch * batchSize < gameState.slots.length) {
-                        requestAnimationFrame(processBatch);
-                    }
-                }
-
-                // Start processing batches
-                processBatch();
-            });
-        }
-
-        // Create puzzle piece
         function createPiece(img, row, col, index, width, height) {
             const canvas = document.createElement('canvas');
-            canvas.width = width;
+            canvas.width  = width;
             canvas.height = height;
-            canvas.className = 'puzzle-piece';
-            canvas.draggable = true;
-            canvas.dataset.index = index;
+            canvas.className   = 'puzzle-piece';
+            canvas.draggable   = true;
+            canvas.dataset.index      = index;
             canvas.dataset.correctRow = row;
             canvas.dataset.correctCol = col;
-            canvas.style.width = width + 'px';
+            canvas.dataset.origW      = width;
+            canvas.dataset.origH      = height;
+            canvas.style.width  = width  + 'px';
             canvas.style.height = height + 'px';
-            canvas.style.border = '2px solid #34495e';
-            canvas.style.borderRadius = '4px';
-            canvas.style.cursor = 'grab';
-            canvas.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+
+            // Draw slice
+            const config = difficultyConfig[gameState.currentDifficulty];
+            const sourceX = col * (img.width  / config.cols);
+            const sourceY = row * (img.height / config.rows);
+            const sourceW = img.width  / config.cols;
+            const sourceH = img.height / config.rows;
 
             const ctx = canvas.getContext('2d');
-            const config = difficultyConfig[gameState.currentDifficulty];
-            const sourceX = col * (img.width / config.cols);
-            const sourceY = row * (img.height / config.rows);
-            const sourceWidth = img.width / config.cols;
-            const sourceHeight = img.height / config.rows;
+            ctx.drawImage(img, sourceX, sourceY, sourceW, sourceH, 0, 0, width, height);
 
-            ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, width, height);
+            // Store the data-URL for the lightweight ghost
+            canvas.dataset.dataUrl = canvas.toDataURL('image/jpeg', 0.85);
 
-            // Add drag event listeners
+            // HTML5 drag events
             canvas.addEventListener('dragstart', handleDragStart);
-            canvas.addEventListener('dragend', handleDragEnd);
+            canvas.addEventListener('dragend',   handleDragEnd);
 
-            // Touch events for mobile
-            canvas.addEventListener('touchstart', handleTouchStart, {passive: false});
-            canvas.addEventListener('touchmove', handleTouchMove, {passive: false});
-            canvas.addEventListener('touchend', handleTouchEnd, {passive: false});
+            // Touch events
+            canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+            canvas.addEventListener('touchmove',  handleTouchMove,  { passive: false });
+            canvas.addEventListener('touchend',   handleTouchEnd,   { passive: false });
 
             return canvas;
         }
 
-        // Drag and drop handlers
+        /* ===================================================================
+         *  BACKGROUND GUIDES (translucent preview in each slot)
+         * =================================================================== */
+        function setupBackgroundGuides(img, config) {
+            const sourceW = img.width  / config.cols;
+            const sourceH = img.height / config.rows;
+
+            gameState.slots.forEach(slot => {
+                const row = parseInt(slot.dataset.guideRow);
+                const col = parseInt(slot.dataset.guideCol);
+                const sw  = parseInt(slot.style.width);
+                const sh  = parseInt(slot.style.height);
+                if (sw < 30 || sh < 30) return;
+
+                try {
+                    const c   = document.createElement('canvas');
+                    c.width   = sw;
+                    c.height  = sh;
+                    const ctx = c.getContext('2d');
+                    if (window.innerWidth <= 768) ctx.imageSmoothingEnabled = false;
+
+                    ctx.drawImage(img, col * sourceW, row * sourceH, sourceW, sourceH, 0, 0, sw, sh);
+                    ctx.globalAlpha = 0.35;
+                    ctx.fillStyle   = '#f8f9fa';
+                    ctx.fillRect(0, 0, sw, sh);
+
+                    // Store the guide URL so we can restore it later
+                    slot.dataset.guideUrl = c.toDataURL('image/jpeg', 0.8);
+                    slot.style.backgroundImage = `url(${slot.dataset.guideUrl})`;
+                } catch (e) {
+                    console.warn('Error creating background guide', e);
+                }
+            });
+        }
+
+        /* ===================================================================
+         *  HTML5 DRAG & DROP (desktop)
+         * =================================================================== */
         function handleDragStart(e) {
             gameState.draggedPiece = e.target;
             e.target.classList.add('dragging');
             e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/html', e.target.innerHTML);
+            e.dataTransfer.setData('text/plain', '');
             e.target.style.zIndex = '1000';
         }
 
         function handleDragEnd(e) {
             e.target.classList.remove('dragging');
             e.target.style.zIndex = '';
-            // Reset all slot backgrounds
-            document.querySelectorAll('.puzzle-slot').forEach(slot => {
-                slot.classList.remove('drag-over');
-            });
+            document.querySelectorAll('.puzzle-slot.drag-over').forEach(s => s.classList.remove('drag-over'));
             gameState.draggedPiece = null;
         }
 
         function handleDragOver(e) {
-            if (e.preventDefault) {
-                e.preventDefault();
-            }
+            e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
-
-            const slot = e.target.classList.contains('puzzle-slot') ? e.target : e.target.closest('.puzzle-slot');
+            const slot = e.target.closest('.puzzle-slot');
             if (slot && !slot.querySelector('.puzzle-piece')) {
                 slot.classList.add('drag-over');
             }
-            return false;
         }
 
         function handleDragLeave(e) {
-            const slot = e.target.classList.contains('puzzle-slot') ? e.target : e.target.closest('.puzzle-slot');
+            const slot = e.target.closest('.puzzle-slot');
             if (slot && !slot.contains(e.relatedTarget)) {
                 slot.classList.remove('drag-over');
             }
         }
 
         function handleDrop(e) {
-            if (e.stopPropagation) {
-                e.stopPropagation();
-            }
-            if (e.preventDefault) {
-                e.preventDefault();
-            }
+            e.stopPropagation();
+            e.preventDefault();
 
-            const slot = e.target.classList.contains('puzzle-slot') ? e.target : e.target.closest('.puzzle-slot');
+            const slot = e.target.closest('.puzzle-slot');
+            const piecesArea = e.target.closest('#piecesArea');
 
             if (slot && gameState.draggedPiece && !slot.querySelector('.puzzle-piece')) {
                 slot.classList.remove('drag-over');
                 placePiece(gameState.draggedPiece, slot);
+            } else if (piecesArea && !slot && gameState.draggedPiece) {
+                returnPieceToTray(gameState.draggedPiece);
             }
-
             return false;
         }
 
-        // Optimized touch event handlers for mobile
-        let touchItem = null;
-        let touchOffset = {x: 0, y: 0};
-        let touchClone = null;
-        let touchActive = false;
+        /* ===================================================================
+         *  TOUCH HANDLERS (mobile)
+         * =================================================================== */
 
         function handleTouchStart(e) {
-            // Prevent multiple simultaneous touches
             if (touchActive) return;
 
-            touchActive = true;
-            touchItem = e.target;
+            const piece = e.target.closest('.puzzle-piece');
+            if (!piece) return;
 
-            if (!touchItem.classList.contains('puzzle-piece')) {
-                touchActive = false;
+            // Don't drag locked (correct) pieces
+            if (piece.classList.contains('correct')) {
+                e.preventDefault();
                 return;
             }
 
+            touchActive = true;
+            touchPiece  = piece;
+
             const touch = e.touches[0];
-            const rect = touchItem.getBoundingClientRect();
-            touchOffset.x = touch.clientX - rect.left;
-            touchOffset.y = touch.clientY - rect.top;
+            const rect  = piece.getBoundingClientRect();
 
-            // Create a simplified clone for better performance
-            touchClone = touchItem.cloneNode(true);
-            touchClone.style.position = 'fixed';
-            touchClone.style.zIndex = '1001';
-            touchClone.style.pointerEvents = 'none';
-            touchClone.classList.add('dragging');
-            touchClone.style.transition = 'none'; // Disable transitions for smooth dragging
-            touchClone.style.left = (touch.clientX - touchOffset.x) + 'px';
-            touchClone.style.top = (touch.clientY - touchOffset.y) + 'px';
-            touchClone.style.opacity = '0.9';
-            document.body.appendChild(touchClone);
+            // Center the ghost on the finger
+            const ghostW = rect.width;
+            const ghostH = rect.height;
+            touchOffsetX = ghostW / 2;
+            touchOffsetY = ghostH / 2;
 
-            // Highlight the original piece
-            touchItem.style.opacity = '0.4';
-            touchItem.style.transform = 'scale(0.95)';
+            // Create lightweight ghost (div with background-image, NOT cloneNode of canvas)
+            const ghost = document.createElement('div');
+            ghost.className = 'touch-ghost';
+            ghost.style.width  = ghostW + 'px';
+            ghost.style.height = ghostH + 'px';
+            ghost.style.backgroundImage = `url(${piece.dataset.dataUrl})`;
+            ghost.style.left = (touch.clientX - touchOffsetX) + 'px';
+            ghost.style.top  = (touch.clientY - touchOffsetY) + 'px';
+            document.body.appendChild(ghost);
+            touchGhost = ghost;
+
+            // Dim the original
+            piece.style.opacity   = '0.4';
+            piece.style.transform = 'scale(0.95)';
 
             e.preventDefault();
         }
 
-        let lastHighlightedSlot = null; // Track last highlighted slot to avoid DOM thrashing
-
         function handleTouchMove(e) {
-            if (!touchClone || !touchActive) return;
-
+            if (!touchGhost || !touchActive) return;
             e.preventDefault();
 
-            // Use requestAnimationFrame for better performance with throttling
-            if (!this.touchMoveRAF) {
-                this.touchMoveRAF = requestAnimationFrame(() => {
-                    const touch = e.touches[0];
+            if (touchRAF) return; // throttle to one RAF per frame
+            touchRAF = requestAnimationFrame(() => {
+                touchRAF = null;
+                if (!touchGhost) return; // may have been cleaned up
 
-                    // Update clone position with transform for better performance
-                    touchClone.style.transform = `translate(${touch.clientX - touchOffset.x}px, ${touch.clientY - touchOffset.y}px)`;
+                const touch = e.touches[0];
 
-                    // Optimized slot highlighting - only query DOM when needed
-                    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-                    const slot = elementBelow?.closest('.puzzle-slot');
+                // Move ghost — centered on finger
+                touchGhost.style.left = (touch.clientX - touchOffsetX) + 'px';
+                touchGhost.style.top  = (touch.clientY - touchOffsetY) + 'px';
 
-                    // Only update if slot changed and is valid
-                    if (slot !== lastHighlightedSlot) {
-                        // Remove highlight from previous slot
-                        if (lastHighlightedSlot && lastHighlightedSlot.classList.contains('drag-over')) {
-                            lastHighlightedSlot.classList.remove('drag-over');
-                        }
+                // Highlight slot under finger
+                const el   = document.elementFromPoint(touch.clientX, touch.clientY);
+                const slot = el ? el.closest('.puzzle-slot') : null;
 
-                        // Add highlight to new slot if it's empty
-                        if (slot && !slot.querySelector('.puzzle-piece')) {
-                            slot.classList.add('drag-over');
-                            lastHighlightedSlot = slot;
-                        } else {
-                            lastHighlightedSlot = null;
-                        }
+                if (slot !== lastHighlightedSlot) {
+                    if (lastHighlightedSlot) lastHighlightedSlot.classList.remove('drag-over');
+
+                    if (slot && !slot.querySelector('.puzzle-piece')) {
+                        slot.classList.add('drag-over');
+                        lastHighlightedSlot = slot;
+                    } else {
+                        lastHighlightedSlot = null;
                     }
-
-                    this.touchMoveRAF = null;
-                });
-            }
+                }
+            });
         }
 
         function handleTouchEnd(e) {
-            if (!touchItem || !touchClone || !touchActive) return;
+            if (!touchPiece || !touchActive) return;
 
+            // Capture references before clearing any state
+            const piece = touchPiece;
+            const ghost = touchGhost;
+
+            // Mark inactive immediately to prevent re-entry
             touchActive = false;
+            touchPiece  = null;
 
-            // Cancel any pending animation frame
-            if (this.touchMoveRAF) {
-                cancelAnimationFrame(this.touchMoveRAF);
-                this.touchMoveRAF = null;
+            // Cancel pending RAF
+            if (touchRAF) {
+                cancelAnimationFrame(touchRAF);
+                touchRAF = null;
             }
 
-            // Always restore original piece visual state
-            touchItem.style.opacity = '';
-            touchItem.style.transform = '';
+            // ALWAYS restore original piece visual FIRST
+            piece.style.opacity   = '';
+            piece.style.transform = '';
 
-            const touch = e.changedTouches[0];
-            const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-            const slot = elementBelow?.closest('.puzzle-slot');
+            // Remove ghost
+            if (ghost && ghost.parentNode) ghost.parentNode.removeChild(ghost);
+            touchGhost = null;
 
-            // Clean up highlights efficiently - only clean the last highlighted slot
-            if (lastHighlightedSlot && lastHighlightedSlot.classList.contains('drag-over')) {
+            // Clean up slot highlights
+            if (lastHighlightedSlot) {
                 lastHighlightedSlot.classList.remove('drag-over');
+                lastHighlightedSlot = null;
             }
-            lastHighlightedSlot = null;
+
+            // Determine drop target
+            const touch = e.changedTouches[0];
+            const el    = document.elementFromPoint(touch.clientX, touch.clientY);
+            const slot  = el ? el.closest('.puzzle-slot') : null;
+            const piecesArea = el ? el.closest('#piecesArea') : null;
 
             if (slot && !slot.querySelector('.puzzle-piece')) {
-                placePiece(touchItem, slot);
-            } else {
-                // Animate original piece back to place with transition
-                touchItem.style.transition = 'all 0.3s ease';
-
-                // Remove transition after animation
-                const piece = touchItem;
-                setTimeout(() => {
-                    if (piece) piece.style.transition = '';
-                }, 300);
+                // Dropped on an empty slot → place piece
+                placePiece(piece, slot);
+            } else if (piecesArea && !slot) {
+                // Dropped on the pieces tray → return piece there
+                returnPieceToTray(piece);
             }
-
-            // Clean up clone efficiently
-            if (touchClone && touchClone.parentNode) {
-                touchClone.parentNode.removeChild(touchClone);
-            }
-
-            // Reset all touch state
-            touchClone = null;
-            touchItem = null;
-            touchOffset = {x: 0, y: 0};
+            // else: dropped on occupied slot / nowhere — piece stays where it was
 
             e.preventDefault();
         }
 
-        // Place piece in slot
+        /* ===================================================================
+         *  PLACE PIECE — core logic
+         *  - Correct pieces get locked (green border, no more dragging)
+         *  - Wrong pieces stay interactive (red border, can be dragged again)
+         *  - Moving a piece from one slot restores the previous slot
+         * =================================================================== */
         function placePiece(piece, slot) {
-            const slotIndex = parseInt(slot.dataset.index);
+            const slotIndex  = parseInt(slot.dataset.index);
             const pieceIndex = parseInt(piece.dataset.index);
 
-            // Manter tamanho original da peça, apenas ajustar para caber no slot
-            piece.style.width = '100%';
-            piece.style.height = '100%';
-            piece.style.display = 'block';
-            piece.style.margin = '0';
-
-            // Restore previous slot if piece was already placed
+            // If piece was already in a slot, restore that slot
             const prevSlot = piece.closest('.puzzle-slot');
-            if (prevSlot) {
-                prevSlot.classList.remove('filled');
-                prevSlot.style.background = '';
-                prevSlot.style.border = '';
-                // Re-show background guide if available
-                const guideCanvas = prevSlot.querySelector('canvas');
-                if (guideCanvas) guideCanvas.style.display = '';
+            if (prevSlot && prevSlot !== slot) {
+                restoreSlot(prevSlot);
             }
+
+            // Place piece in new slot — keep original dimensions, no resizing
+            piece.style.width     = '';
+            piece.style.height    = '';
+            piece.style.display   = 'block';
+            piece.style.margin    = '0';
+            piece.style.opacity = '';
+            piece.style.transform = '';
 
             slot.appendChild(piece);
             slot.classList.add('filled');
-            slot.style.background = 'transparent';
             slot.style.border = 'none';
 
-            // Check if piece is in correct position
             if (slotIndex === pieceIndex) {
-                piece.style.border = '5px solid #27ae60';
-                piece.style.boxShadow = '0 4px 20px rgba(39, 174, 96, 0.6)';
+                // ===== CORRECT =====
+                piece.classList.remove('wrong');
+                piece.classList.add('correct');
                 piece.draggable = false;
-                piece.removeEventListener('touchstart', handleTouchStart);
-                piece.removeEventListener('touchmove', handleTouchMove);
-                piece.removeEventListener('touchend', handleTouchEnd);
+                piece.removeEventListener('dragstart',  handleDragStart);
+                piece.removeEventListener('dragend',    handleDragEnd);
+                piece.removeEventListener('touchstart',  handleTouchStart);
+                piece.removeEventListener('touchmove',   handleTouchMove);
+                piece.removeEventListener('touchend',    handleTouchEnd);
 
                 gameState.completedSlots++;
                 gameState.score += Math.floor(difficultyConfig[gameState.currentDifficulty].score / gameState.slots.length);
                 updateScore();
 
-                // Check if puzzle is complete
                 if (gameState.completedSlots === gameState.slots.length) {
-                    setTimeout(() => completePuzzle(), 500);
+                    setTimeout(completePuzzle, 500);
                 }
             } else {
-                // Wrong position — keep piece interactive so user can move it again
-                piece.style.border = '5px solid #e74c3c';
-                piece.style.opacity = '0.8';
-                piece.style.boxShadow = '0 4px 20px rgba(231, 76, 60, 0.4)';
+                // ===== WRONG — stays draggable =====
+                piece.classList.remove('correct');
+                piece.classList.add('wrong');
                 piece.draggable = true;
-                // Restore visual state
-                piece.style.transition = '';
             }
 
-            // Update restart button state after placing piece
             updateRestartButton();
         }
 
-        // Complete puzzle
+        /** Restore a slot to its empty state (re-show background guide) */
+        function restoreSlot(slot) {
+            slot.classList.remove('filled');
+            slot.style.border = '';
+            slot.style.padding = '';
+
+            // Restore background guide
+            if (slot.dataset.guideUrl) {
+                slot.style.backgroundImage = `url(${slot.dataset.guideUrl})`;
+            } else {
+                slot.style.backgroundImage = '';
+            }
+        }
+
+        /** Return a piece from a slot back to the pieces tray */
+        function returnPieceToTray(piece) {
+            const prevSlot = piece.closest('.puzzle-slot');
+            if (prevSlot) {
+                restoreSlot(prevSlot);
+            }
+
+            // Restore original pixel dimensions
+            const w = piece.dataset.origW;
+            const h = piece.dataset.origH;
+
+            piece.classList.remove('wrong', 'correct');
+            piece.style.width     = w ? w + 'px' : '';
+            piece.style.height    = h ? h + 'px' : '';
+            piece.style.display   = '';
+            piece.style.margin    = '';
+            piece.style.opacity   = '';
+            piece.style.transform = '';
+            piece.style.border    = '';
+            piece.style.boxShadow = '';
+            piece.draggable = true;
+
+            document.getElementById('piecesArea').appendChild(piece);
+        }
+
+        /* ===================================================================
+         *  COMPLETION / MODAL
+         * =================================================================== */
         function completePuzzle() {
-            const config = difficultyConfig[gameState.currentDifficulty];
+            const config     = difficultyConfig[gameState.currentDifficulty];
+            const imageData  = imageSequence[gameState.currentImageIndex];
+            const isLast     = isGameComplete();
+
             gameState.score += config.score;
             updateScore();
 
-            const currentImageData = imageSequence[gameState.currentImageIndex];
-            const isLastPuzzle = isGameComplete();
+            document.querySelector('.modal-title').textContent = imageData.title;
 
-            const modal = document.getElementById('completeModal');
-            const modalText = document.getElementById('modalText');
+            const buttonText = isLast ? 'Finalizar Jogo' : 'Próximo Ecossistema';
 
-            document.querySelector('.modal-title').textContent = currentImageData.title;
-
-            let buttonText = isLastPuzzle ? 'Finalizar Jogo' : 'Próximo Ecossistema';
-
-            modalText.innerHTML = `
-                <div style="text-align: center; margin-bottom: 15px;">
-                    <h3 style="color: #2c3e50; margin-bottom: 10px;">
-                        ${currentImageData.ecosystem}
-                    </h3>
-                    <p>${currentImageData.text}</p>
+            document.getElementById('modalText').innerHTML = `
+                <div style="text-align:center;margin-bottom:15px">
+                    <h3 style="color:#2c3e50;margin-bottom:10px">${imageData.ecosystem}</h3>
+                    <p>${imageData.text}</p>
                 </div>
-                <div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px;">
+                <div style="border-top:1px solid #ddd;padding-top:15px;margin-top:15px">
                     <p><strong>🏆 Pontos ganhos:</strong> +${config.score}</p>
                     <p><strong>📊 Pontuação total:</strong> ${gameState.score} pontos</p>
                     <p><strong>📈 Progresso:</strong> ${gameState.currentImageIndex + 1} / ${imageSequence.length} ecossistemas</p>
-                </div>
-            `;
+                </div>`;
 
-            // Update modal buttons based on whether this is the last puzzle
             document.getElementById('modalButtons').innerHTML = `
                 <button class="control-btn" onclick="nextPuzzle()">${buttonText}</button>
-                <button class="control-btn" onclick="backToMenu()">Menu</button>
-            `;
+                <button class="control-btn" onclick="backToMenu()">Menu</button>`;
 
-            modal.style.display = 'flex';
+            document.getElementById('completeModal').style.display = 'flex';
         }
 
-        // Show hint
-        function showHint() {
-            const unfilledPieces = document.querySelectorAll('.pieces-area .puzzle-piece');
-            if (unfilledPieces.length > 0) {
-                const randomPiece = unfilledPieces[Math.floor(Math.random() * unfilledPieces.length)];
-                const correctSlot = document.querySelector(`.puzzle-slot[data-index="${randomPiece.dataset.index}"]:not(.filled)`);
-
-                if (correctSlot) {
-                    randomPiece.style.border = '3px solid #e74c3c';
-                    correctSlot.style.border = '3px solid #e74c3c';
-
-                    setTimeout(() => {
-                        randomPiece.style.border = '2px solid rgba(0, 0, 0, 0.3)';
-                        correctSlot.style.border = '2px dashed rgba(0, 0, 0, 0.2)';
-                    }, 2000);
-                }
-            }
-        }
-
-        // Shuffle pieces
-        function shufflePieces() {
-            const piecesArea = document.getElementById('piecesArea');
-            const pieces = Array.from(piecesArea.querySelectorAll('.puzzle-piece'));
-
-            shuffleArray(pieces);
-            piecesArea.innerHTML = '';
-            pieces.forEach(piece => piecesArea.appendChild(piece));
-        }
-
-        // Show comparison
-        function showComparison() {
-            const currentImageData = imageSequence[gameState.currentImageIndex];
-            const oppositeIndex = currentImageData.type === 'healthy' ?
-                gameState.currentImageIndex + 1 : gameState.currentImageIndex - 1;
-
-            if (oppositeIndex >= 0 && oppositeIndex < imageSequence.length) {
-                const oppositeImageData = imageSequence[oppositeIndex];
-                const oppositeType = oppositeImageData.type === 'healthy' ? 'saudável' : 'degradado';
-
-                const modal = document.getElementById('completeModal');
-                document.querySelector('.modal-title').textContent = `Comparação - Ecossistema ${oppositeType}`;
-                document.getElementById('modalText').innerHTML = `
-                    <img src="${oppositeImageData.src}" style="max-width: 100%; height: auto; border-radius: 10px; margin-bottom: 15px;">
-                    <p>Esta é a versão ${oppositeType} do ecossistema <strong>${oppositeImageData.ecosystem}</strong>.</p>
-                    <p>${oppositeImageData.text}</p>
-                `;
-
-                modal.style.display = 'flex';
-            }
-        }
-
-        // Check if game is complete
         function isGameComplete() {
             return gameState.currentImageIndex >= imageSequence.length - 1;
         }
 
-        // Next puzzle - linear progression
         function nextPuzzle() {
             document.getElementById('completeModal').style.display = 'none';
-
             if (isGameComplete()) {
                 endGame();
             } else {
@@ -1562,339 +1218,138 @@
             }
         }
 
-        // End game - final completion
         function endGame() {
             gameState.isGameComplete = true;
-
-            const modal = document.getElementById('completeModal');
             document.querySelector('.modal-title').textContent = '🎉 Parabéns! Jogo Concluído!';
-
             document.getElementById('modalText').innerHTML = `
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 3em; margin-bottom: 15px;">🏆</div>
-                    <h3 style="color: #27ae60; margin-bottom: 15px;">Você explorou todos os ecossistemas!</h3>
+                <div style="text-align:center;margin-bottom:20px">
+                    <div style="font-size:3em;margin-bottom:15px">🏆</div>
+                    <h3 style="color:#27ae60;margin-bottom:15px">Você explorou todos os ecossistemas!</h3>
                 </div>
-                <p style="margin-bottom: 15px;"><strong>🌊 Ecossistemas explorados:</strong></p>
-                <ul style="text-align: left; margin-bottom: 20px;">
+                <p style="margin-bottom:15px"><strong>🌊 Ecossistemas explorados:</strong></p>
+                <ul style="text-align:left;margin-bottom:20px">
                     <li>🪸 Recife de Coral (saudável e ameaçado)</li>
                     <li>🐠 Vida Marinha (saudável e ameaçada)</li>
                     <li>🌊 Oceano Aberto (saudável e ameaçado)</li>
                 </ul>
-                <p style="font-style: italic; color: #2c3e50; margin-bottom: 20px;">
+                <p style="font-style:italic;color:#2c3e50;margin-bottom:20px">
                     Agora você entende melhor a importância de proteger nossos oceanos.
                     Cada pequena ação faz a diferença na preservação dos ecossistemas marinhos de Arraial do Cabo!
                 </p>
-                <p><strong>Pontuação final:</strong> ${gameState.score} pontos</p>
-            `;
-
-            // Update modal buttons for final completion
+                <p><strong>Pontuação final:</strong> ${gameState.score} pontos</p>`;
             document.getElementById('modalButtons').innerHTML = `
                 <button class="control-btn" onclick="playAgain()">🔄 Jogar Novamente</button>
-                <button class="control-btn" onclick="backToMenu()">📋 Menu Principal</button>
-            `;
-
-            modal.style.display = 'flex';
+                <button class="control-btn" onclick="backToMenu()">📋 Menu Principal</button>`;
+            document.getElementById('completeModal').style.display = 'flex';
         }
 
-        // Check if restart should be available
-        function shouldEnableRestart() {
-            // Always allow restart - user requested unconditional restart
-            return true;
+        /* ===================================================================
+         *  HINT / SHUFFLE / RESTART
+         * =================================================================== */
+        function showHint() {
+            const unfilled = document.querySelectorAll('.pieces-area .puzzle-piece');
+            if (unfilled.length === 0) return;
+            const piece = unfilled[Math.floor(Math.random() * unfilled.length)];
+            const slot  = document.querySelector(`.puzzle-slot[data-index="${piece.dataset.index}"]`);
+            if (!slot || slot.classList.contains('filled')) return;
+
+            piece.style.border = '3px solid #e74c3c';
+            slot.style.border  = '3px solid #e74c3c';
+            setTimeout(() => {
+                piece.style.border = '';
+                slot.style.border  = '';
+            }, 2000);
         }
 
-        // Update restart button state
-        function updateRestartButton() {
-            const restartBtn = document.getElementById('restartBtn');
-            if (restartBtn) {
-                restartBtn.disabled = !shouldEnableRestart();
-            }
+        function shufflePieces() {
+            const area   = document.getElementById('piecesArea');
+            const pieces = Array.from(area.querySelectorAll('.puzzle-piece'));
+            shuffleArray(pieces);
+            area.innerHTML = '';
+            pieces.forEach(p => area.appendChild(p));
         }
 
-        // Smart restart function
         function smartRestart() {
-            if (!shouldEnableRestart()) return;
-
-            // Show confirmation modal
             const modal = document.getElementById('completeModal');
-            const modalTitle = document.querySelector('.modal-title');
-            const modalText = document.getElementById('modalText');
-            const modalButtons = document.getElementById('modalButtons');
-
-            modalTitle.textContent = '🔄 Recomeçar Nível?';
-            modalText.innerHTML = `
-                <div style="text-align: center; margin-bottom: 15px;">
-                    <p style="color: #2c3e50; margin-bottom: 10px;">
-                        Todas as peças foram colocadas, mas algumas estão na posição errada.
+            document.querySelector('.modal-title').textContent = '🔄 Recomeçar Nível?';
+            document.getElementById('modalText').innerHTML = `
+                <div style="text-align:center;margin-bottom:15px">
+                    <p style="color:#2c3e50;margin-bottom:10px">
+                        Deseja recomeçar este nível?
                     </p>
-                    <p>Deseja recomeçar este nível?</p>
-                </div>
-            `;
-
-            modalButtons.innerHTML = `
+                </div>`;
+            document.getElementById('modalButtons').innerHTML = `
                 <button class="control-btn" onclick="confirmRestart()">Confirmar</button>
-                <button class="control-btn" onclick="closeRestartModal()">Cancelar</button>
-            `;
-
+                <button class="control-btn" onclick="document.getElementById('completeModal').style.display='none'">Cancelar</button>`;
             modal.style.display = 'flex';
         }
 
-        // Confirm restart
         function confirmRestart() {
             document.getElementById('completeModal').style.display = 'none';
-
-            // Store current state to maintain same level
-            const currentDifficulty = gameState.currentDifficulty;
-            const currentImageIndex = gameState.currentImageIndex;
-
-            // Reset only the pieces and slots, not the progress
             gameState.pieces = [];
-            gameState.slots = [];
+            gameState.slots  = [];
             gameState.completedSlots = 0;
-
-            // Reload the same puzzle
             loadPuzzle();
         }
 
-        // Close restart modal
-        function closeRestartModal() {
-            document.getElementById('completeModal').style.display = 'none';
+        function updateRestartButton() {
+            const btn = document.getElementById('restartBtn');
+            if (btn) btn.disabled = false;
         }
 
-        // Play again
-        function playAgain() {
-            gameState.currentImageIndex = 0;
-            gameState.isGameComplete = false;
-            gameState.score = 0;
-            updateScore();
-            document.getElementById('completeModal').style.display = 'none';
-
-            // Reset modal buttons to default
-            document.getElementById('modalButtons').innerHTML = `
-                <button class="control-btn" onclick="nextPuzzle()">Próximo</button>
-                <button class="control-btn" onclick="backToMenu()">Menu</button>
-            `;
-
-            loadPuzzle();
-        }
-
-        // Back to menu
+        /* ===================================================================
+         *  NAVIGATION
+         * =================================================================== */
         function backToMenu() {
-            // If on difficulty selection screen, go back to index.html
-            const menuScreen = document.getElementById('menuScreen');
-            const gameScreen = document.getElementById('gameScreen');
+            const menuScreen    = document.getElementById('menuScreen');
+            const gameScreen    = document.getElementById('gameScreen');
             const completeModal = document.getElementById('completeModal');
 
-            // Check if we're on the difficulty selection screen
             if (menuScreen && menuScreen.style.display !== 'none' &&
                 (!gameScreen || gameScreen.style.display === 'none')) {
-                // On difficulty selection - go back to main game selection page
                 window.location.href = 'index.html';
             } else {
-                // In game - go back to difficulty selection
-                if (gameScreen) gameScreen.style.display = 'none';
-                if (menuScreen) menuScreen.style.display = 'flex';
+                if (gameScreen)    gameScreen.style.display    = 'none';
+                if (menuScreen)    menuScreen.style.display    = 'flex';
                 if (completeModal) completeModal.style.display = 'none';
             }
         }
 
-        // Update score display
+        function playAgain() {
+            gameState.currentImageIndex = 0;
+            gameState.isGameComplete    = false;
+            gameState.score = 0;
+            updateScore();
+            document.getElementById('completeModal').style.display = 'none';
+            loadPuzzle();
+        }
+
         function updateScore() {
             document.getElementById('score').textContent = gameState.score;
         }
 
-        // Utility function to shuffle array
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
+        /* ===================================================================
+         *  UTILITIES
+         * =================================================================== */
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
+                [arr[i], arr[j]] = [arr[j], arr[i]];
             }
-            return array;
+            return arr;
         }
 
-        // Handle window resize events
-        window.addEventListener('resize', function() {
-            if (gameState.currentDifficulty && gameState.pieces.length > 0) {
-                // Recalculate layout when window resizes
-                setTimeout(() => {
-                    loadPuzzle();
-                }, 300); // Debounce resize events
-            }
-        });
-
-        // Initialize when page loads
-        window.onload = function() {
+        /* ===================================================================
+         *  INIT
+         * =================================================================== */
+        window.onload = function () {
             initGame();
-            // Verificar se as imagens existem
-            verifyImages();
-            // Validar configurações do jogo
-            validateGameConfig();
+
+            // Allow pieces-area to accept drops (desktop drag & drop) — once only
+            const piecesArea = document.getElementById('piecesArea');
+            piecesArea.addEventListener('dragover', function(e) { e.preventDefault(); });
+            piecesArea.addEventListener('drop', handleDrop);
         };
-
-        // Run layout tests when puzzle loads
-        const originalLoadPuzzle = window.loadPuzzle;
-        window.loadPuzzle = function() {
-            const result = originalLoadPuzzle.apply(this, arguments);
-            setTimeout(() => {
-                testLayoutDimensions();
-                testVisualGuide();
-            }, 100);
-            return result;
-        };
-
-        /* ==================== FUTURE IMPLEMENTATION NOTES ====================
-         *
-         * ROADMAP FOR UNIQUE PUZZLE PIECES (PHASE 3):
-         *
-         * 1. SHAPE GENERATION ALGORITHM:
-         *    - Create tabs and blanks using SVG paths
-         *    - Generate unique edge patterns for each piece
-         *    - Ensure mathematical compatibility between adjacent pieces
-         *
-         * 2. COLLISION DETECTION:
-         *    - Implement proximity detection for piece placement
-         *    - Add snap-to-place functionality with tolerance
-         *    - Validate piece shape matches slot shape
-         *
-         * 3. CANVAS MASKING:
-         *    - Use canvas clipping for complex piece shapes
-         *    - Create masks for tabs and blanks
-         *    - Apply anti-aliasing for smooth edges
-         *
-         * 4. ENHANCED PHYSICS:
-         *    - Add rotation functionality (90°, 180°, 270°)
-         *    - Implement piece rotation validation
-         *    - Add magnetic snap effects
-         *
-         * 5. CURRENT GABARITO SYSTEM:
-         *    - Background guides provide immediate visual feedback
-         *    - Translucent opacity (0.3) balances guidance vs challenge
-         *    - Maintains educational focus over puzzle complexity
-         *
-         * ==================== END FUTURE NOTES ==================== */
-
-        // Verify if images exist
-        function verifyImages() {
-            images.forEach((image, index) => {
-                const healthyImg = new Image();
-                const degradedImg = new Image();
-
-                healthyImg.onerror = function() {
-                    console.error('Healthy image not found:', image.healthy);
-                };
-
-                degradedImg.onerror = function() {
-                    console.error('Degraded image not found:', image.degraded);
-                };
-
-                healthyImg.src = image.healthy;
-                degradedImg.src = image.degraded;
-            });
-        }
-
-        // Validate game configuration
-        function validateGameConfig() {
-            console.log('Validating game configuration...');
-
-            Object.entries(difficultyConfig).forEach(([level, config]) => {
-                const totalPieces = config.rows * config.cols;
-                console.log(`${level}: ${config.rows}x${config.cols} = ${totalPieces} pieces`);
-            });
-
-            console.log('Images available:', images.length);
-            console.log('Game configuration validated successfully!');
-        }
-
-        // Test visual guide functionality
-        function testVisualGuide() {
-            console.log('Testing visual guide functionality...');
-
-            // Check if slots have background guides
-            const slots = document.querySelectorAll('.puzzle-slot');
-            let slotsWithGuides = 0;
-
-            slots.forEach((slot, index) => {
-                const bgImage = slot.style.backgroundImage;
-                if (bgImage && bgImage !== 'none') {
-                    slotsWithGuides++;
-                }
-            });
-
-            console.log(`Slots with visual guides: ${slotsWithGuides}/${slots.length}`);
-
-            if (slotsWithGuides === slots.length) {
-                console.log('✅ Visual guides are working correctly!');
-            } else {
-                console.log('❌ Some visual guides are missing.');
-            }
-        }
-
-        // Test layout dimensions across all levels
-        function testLayoutDimensions() {
-            console.log('Testing PERFECT layout dimensions...');
-
-            const board = document.querySelector('.puzzle-board');
-            const piecesArea = document.querySelector('.pieces-area');
-            const container = document.querySelector('.puzzle-container');
-
-            if (board && piecesArea) {
-                const boardWidth = board.offsetWidth;
-                const piecesWidth = piecesArea.offsetWidth;
-                const containerWidth = container.offsetWidth;
-
-                console.log(`📏 Container width: ${containerWidth}px`);
-                console.log(`🎯 Board width: ${boardWidth}px`);
-                console.log(`🧩 Pieces area width: ${piecesWidth}px`);
-                console.log(`📐 Ratio (pieces/board): ${(piecesWidth/boardWidth).toFixed(3)}`);
-
-                // Check if areas are perfectly equal
-                const ratio = piecesWidth / boardWidth;
-                if (ratio >= 0.99 && ratio <= 1.01) {
-                    console.log('🎉 PERFECT! Layout areas are identical!');
-                } else {
-                    console.log('⚠️ Layout areas have minor differences.');
-                }
-
-                // Test grid templates
-                const boardGridCols = board.style.gridTemplateColumns;
-                const piecesGridCols = piecesArea.style.gridTemplateColumns;
-                const boardGridRows = board.style.gridTemplateRows;
-                const piecesGridRows = piecesArea.style.gridTemplateRows;
-
-                console.log(`🎯 Board grid: ${boardGridCols} × ${boardGridRows}`);
-                console.log(`🧩 Pieces grid: ${piecesGridCols} × ${piecesGridRows}`);
-
-                if (boardGridCols === piecesGridCols && boardGridRows === piecesGridRows) {
-                    console.log('🎉 PERFECT! Grid templates are identical!');
-                } else {
-                    console.log('⚠️ Grid templates might not match.');
-                }
-
-                // Test piece-to-slot size correspondence
-                const slots = document.querySelectorAll('.puzzle-slot');
-                const pieces = document.querySelectorAll('.puzzle-piece');
-
-                if (slots.length > 0 && pieces.length > 0) {
-                    const firstSlot = slots[0];
-                    const firstPiece = pieces[0];
-                    const slotWidth = firstSlot.offsetWidth;
-                    const pieceWidth = firstPiece.offsetWidth;
-
-                    console.log(`🎯 First slot width: ${slotWidth}px`);
-                    console.log(`🧩 First piece width: ${pieceWidth}px`);
-                    console.log(`📏 Piece-to-slot ratio: ${(pieceWidth/slotWidth).toFixed(3)}`);
-
-                    const pieceSlotRatio = pieceWidth / slotWidth;
-                    if (pieceSlotRatio >= 0.95 && pieceSlotRatio <= 1.05) {
-                        console.log('🎉 PERFECT! Pieces match slot sizes exactly!');
-                    } else {
-                        console.log('⚠️ Pieces and slots might have size differences.');
-                    }
-
-                    console.log(`📊 Total slots: ${slots.length}, Total pieces: ${pieces.length}`);
-                    console.log(`🎯 Current difficulty: ${gameState.currentDifficulty || 'Not started'}`);
-                }
-            }
-        }
     </script>
 </body>
 </html>
